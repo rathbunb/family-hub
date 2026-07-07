@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rathbun Family Command Center</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--color-bg, #f0f4f8); color: var(--color-text, #1a2332); min-height: 100vh; }
+
+  .top-nav { background: #2563eb; color: white; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-radius: 0 0 12px 12px; }
+  .top-nav h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .top-nav .subtitle { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+  .view-toggle { display: flex; gap: 8px; }
+  .view-btn { padding: 7px 14px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.4); background: transparent; color: white; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .view-btn.active { background: white; color: #2563eb; border-color: white; }
+  .view-btn:hover:not(.active) { background: rgba(255,255,255,0.15); }
+
+  .view { display: none; padding: 16px; }
+  .view.active { display: block; }
+
+  /* NAV TABS inside parent view */
+  .parent-tabs { display: flex; gap: 4px; margin-bottom: 16px; overflow-x: auto; }
+  .parent-tab { padding: 8px 14px; border-radius: 20px; border: 1.5px solid #e2e8f0; background: white; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; color: #64748b; transition: all 0.15s; }
+  .parent-tab.active { border-color: #2563eb; background: #2563eb; color: white; }
+
+  .parent-panel { display: none; }
+  .parent-panel.active { display: block; }
+
+  /* WEEK */
+  .week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .week-header h2 { font-size: 16px; font-weight: 700; }
+  .week-nav { display: flex; align-items: center; gap: 10px; }
+  .week-nav button { background: #e8edf3; border: none; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 14px; }
+  .week-label { font-size: 14px; font-weight: 600; min-width: 140px; text-align: center; }
+  .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px; }
+  @media (max-width: 700px) { .days-grid { grid-template-columns: repeat(2, 1fr); } }
+  .day-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; min-height: 160px; position: relative; }
+  .day-card.today { border-color: #2563eb; border-width: 2px; }
+  .day-card .day-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 6px; }
+  .day-card .day-date { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .day-card.today .day-date { color: #2563eb; }
+  .event-pill { font-size: 11px; padding: 3px 7px; border-radius: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+  .event-pill.camp { background: #fef3c7; color: #92400e; }
+  .event-pill.soccer { background: #dcfce7; color: #166534; }
+  .event-pill.dinner { background: #ede9fe; color: #5b21b6; }
+  .event-edit-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 12px; }
+  .event-edit-btn:hover { color: #2563eb; }
+
+  .section { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .section-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .section-title i { color: #2563eb; }
+
+  .dinner-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+  .dinner-row:last-child { border-bottom: none; }
+  .dinner-day { font-size: 12px; font-weight: 700; width: 32px; color: #64748b; }
+  .dinner-input { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 10px; font-size: 13px; background: #f8fafc; color: #1a2332; font-family: inherit; }
+  .dinner-input:focus { outline: none; border-color: #2563eb; }
+  .use-idea-btn { background: #ede9fe; color: #5b21b6; border: none; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .use-idea-btn:hover { background: #ddd6fe; }
+
+  .screen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .screen-card { background: #fce7f3; border-radius: 10px; padding: 12px; text-align: center; }
+  .screen-card .name { font-size: 12px; font-weight: 700; color: #9d174d; }
+  .screen-time-input { width: 60px; border: none; background: transparent; font-size: 22px; font-weight: 800; color: #be185d; font-family: 'SF Mono', monospace; text-align: center; cursor: pointer; }
+  .screen-time-input:focus { outline: none; border-bottom: 2px solid #be185d; }
+
+  .camp-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
+  .camp-row:last-child { border-bottom: none; }
+  .camp-input { border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 10px; font-size: 13px; background: #f8fafc; color: #1a2332; font-family: inherit; }
+  .camp-input:focus { outline: none; border-color: #2563eb; }
+  .camp-input.wide { flex: 1; min-width: 120px; }
+  .camp-input.time { width: 80px; }
+  .camp-label { font-size: 11px; color: #64748b; font-weight: 600; }
+  .save-btn { background: #2563eb; color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .save-btn:hover { background: #1d4ed8; }
+  .save-btn.green { background: #16a34a; }
+  .save-btn.green:hover { background: #15803d; }
+  .save-btn.sm { padding: 6px 12px; font-size: 12px; }
+
+  /* ---- DINNER GENERATOR ---- */
+  .gen-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+  .filter-chip { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e2e8f0; background: white; font-size: 12px; font-weight: 600; cursor: pointer; color: #64748b; transition: all 0.15s; display: flex; align-items: center; gap: 5px; }
+  .filter-chip.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+  .filter-chip:hover:not(.active) { border-color: #94a3b8; }
+  .spin-btn { background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-left: auto; transition: opacity 0.15s; }
+  .spin-btn:hover { opacity: 0.9; }
+  .spin-btn.spinning i { animation: spin 0.6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .idea-card { background: white; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px; position: relative; transition: all 0.15s; }
+  .idea-card:hover { border-color: #7dd3fc; box-shadow: 0 2px 8px rgba(37,99,235,0.08); }
+  .idea-card .idea-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .idea-card .idea-meta { font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .idea-tag { font-size: 10px; padding: 2px 7px; border-radius: 8px; font-weight: 600; }
+  .idea-tag.quick { background: #dcfce7; color: #166534; }
+  .idea-tag.busy { background: #fef3c7; color: #92400e; }
+  .idea-tag.kids { background: #fce7f3; color: #9d174d; }
+  .idea-tag.healthy { background: #e0f2fe; color: #0369a1; }
+  .idea-tag.weekend { background: #ede9fe; color: #5b21b6; }
+  .idea-actions { display: flex; gap: 6px; }
+  .assign-btn { flex: 1; background: #eff6ff; color: #2563eb; border: none; border-radius: 7px; padding: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
+  .assign-btn:hover { background: #dbeafe; }
+  .fav-btn { background: #fef9ee; border: 1px solid #fde68a; border-radius: 7px; padding: 6px 8px; cursor: pointer; font-size: 13px; }
+  .fav-btn.faved { background: #fef3c7; }
+
+  .assign-picker { display: none; position: absolute; bottom: 44px; left: 0; right: 0; background: white; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); z-index: 10; }
+  .assign-picker.open { display: block; }
+  .assign-day-btn { display: block; width: 100%; text-align: left; padding: 5px 8px; font-size: 12px; font-weight: 600; border: none; background: none; cursor: pointer; border-radius: 6px; }
+  .assign-day-btn:hover { background: #f0f4ff; }
+
+  .no-results { text-align: center; padding: 32px; color: #94a3b8; font-size: 14px; }
+
+  /* SAVED MEALS */
+  .saved-meal-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+  .saved-meal-row:last-child { border-bottom: none; }
+  .saved-meal-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .del-btn { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 14px; }
+
+  /* KIDS VIEW */
+  #kids-view { background: #fff7ed; min-height: calc(100vh - 60px); }
+  .kids-header { text-align: center; padding: 16px; }
+  .kids-header h2 { font-size: 22px; font-weight: 800; color: #ea580c; }
+  .kids-header .today-date { font-size: 14px; color: #78716c; margin-top: 4px; }
+  .kid-tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; }
+  .kid-tab { padding: 10px 24px; border-radius: 24px; border: 3px solid #e2e8f0; background: white; font-size: 16px; font-weight: 800; cursor: pointer; color: #64748b; transition: all 0.15s; }
+  .kid-tab.active { border-color: #ea580c; background: #ea580c; color: white; }
+  .kid-content { display: none; }
+  .kid-content.active { display: block; }
+  .daily-info-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 14px; border: 2px solid #fde68a; }
+  .daily-info-card .info-title { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: #f59e0b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .daily-info-card .info-value { font-size: 16px; font-weight: 700; color: #1a2332; }
+  .daily-info-card .info-sub { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .checklist-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 14px; border: 2px solid #bbf7d0; }
+  .checklist-card .cl-title { font-size: 16px; font-weight: 800; color: #16a34a; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .cl-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 10px; margin-bottom: 8px; background: #f0fdf4; border: 2px solid #bbf7d0; cursor: pointer; transition: all 0.15s; }
+  .cl-item.done { background: #dcfce7; border-color: #86efac; opacity: 0.7; }
+  .cl-item .cl-icon { font-size: 22px; }
+  .cl-item .cl-text { font-size: 15px; font-weight: 700; color: #1a2332; }
+  .cl-item.done .cl-text { text-decoration: line-through; color: #64748b; }
+  .cl-check { margin-left: auto; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #16a34a; display: flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; transition: all 0.15s; flex-shrink: 0; }
+  .cl-item.done .cl-check { background: #16a34a; color: white; }
+  .screen-time-card { background: white; border-radius: 14px; padding: 16px; margin-bottom: 14px; border: 2px solid #fce7f3; }
+  .screen-time-card .st-title { font-size: 16px; font-weight: 800; color: #be185d; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .st-visual { display: flex; align-items: center; gap: 12px; }
+  .st-circle { width: 72px; height: 72px; border-radius: 50%; border: 6px solid #fbcfe8; display: flex; align-items: center; justify-content: center; flex-direction: column; flex-shrink: 0; }
+  .st-circle .st-num { font-size: 20px; font-weight: 800; color: #be185d; line-height: 1; }
+  .st-circle .st-unit { font-size: 10px; color: #9d174d; font-weight: 700; }
+  .st-rules { font-size: 13px; color: #64748b; line-height: 1.8; }
+  .st-rules li { list-style: none; display: flex; align-items: center; gap: 6px; }
+  .st-rules li::before { content: "✅"; font-size: 12px; }
+  .progress-bar-wrap { background: #f1f5f9; border-radius: 8px; height: 10px; margin-top: 10px; overflow: hidden; }
+  .progress-bar { height: 10px; border-radius: 8px; background: linear-gradient(90deg, #16a34a, #86efac); transition: width 0.4s ease; }
+  .complete-badge { display: none; text-align: center; padding: 16px; font-size: 32px; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 14px; padding: 20px; width: 100%; max-width: 420px; }
+  .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+  .modal-row { margin-bottom: 12px; }
+  .modal-row label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 5px; }
+  .modal-row input, .modal-row select { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 14px; font-family: inherit; }
+  .modal-row input:focus, .modal-row select:focus { outline: none; border-color: #2563eb; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .cancel-btn { background: #f1f5f9; color: #64748b; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div>
+    <div style="font-size:18px; font-weight:700;">🏠 Rathbun HQ</div>
+    <div class="subtitle">Family Command Center</div>
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchView('parent')"><i class="fa-solid fa-gear"></i> Parents</button>
+    <button class="view-btn" onclick="switchView('kids')">🎮 Kids</button>
+  </div>
+</div>
+
+<!-- ============ PARENT VIEW ============ -->
+<div id="parent-view" class="view active">
+
+  <div class="parent-tabs">
+    <button class="parent-tab active" onclick="switchTab('schedule')">📅 Schedule</button>
+    <button class="parent-tab" onclick="switchTab('dinners')">🍽️ Dinners</button>
+    <button class="parent-tab" onclick="switchTab('camp')">⛺ Camp & Soccer</button>
+    <button class="parent-tab" onclick="switchTab('settings')">⚙️ Settings</button>
+  </div>
+
+  <!-- SCHEDULE TAB -->
+  <div class="parent-panel active" id="panel-schedule">
+    <div class="week-header">
+      <h2><i class="fa-solid fa-calendar-week" style="color:#2563eb; margin-right:6px;"></i>Weekly Schedule</h2>
+      <div class="week-nav">
+        <button onclick="changeWeek(-1)">&#8592;</button>
+        <span class="week-label" id="week-label"></span>
+        <button onclick="changeWeek(1)">&#8594;</button>
+      </div>
+    </div>
+    <div class="days-grid" id="days-grid"></div>
+  </div>
+
+  <!-- DINNERS TAB -->
+  <div class="parent-panel" id="panel-dinners">
+    <!-- Generator -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Dinner Idea Generator</div>
+      <div class="gen-toolbar">
+        <button class="filter-chip" id="filter-quick" onclick="toggleFilter('quick')">⚡ Quick (&lt;30 min)</button>
+        <button class="filter-chip" id="filter-busy" onclick="toggleFilter('busy')">⚽ Soccer Nights</button>
+        <button class="filter-chip" id="filter-kids" onclick="toggleFilter('kids')">👦 Kid-Friendly</button>
+        <button class="filter-chip" id="filter-healthy" onclick="toggleFilter('healthy')">🥗 Healthy</button>
+        <button class="filter-chip" id="filter-weekend" onclick="toggleFilter('weekend')">🍖 Weekend / Effort</button>
+        <button class="spin-btn" id="spin-btn" onclick="generateIdeas()"><i class="fa-solid fa-dice"></i> Generate Ideas</button>
+      </div>
+      <div id="ideas-grid" class="ideas-grid">
+        <div class="no-results" style="grid-column:1/-1;">Hit <strong>Generate Ideas</strong> to get dinner suggestions!<br><span style="font-size:24px;margin-top:8px;display:block;">🍽️</span></div>
+      </div>
+    </div>
+
+    <!-- Weekly Dinner Plan -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-calendar-check"></i> This Week's Dinner Plan</div>
+      <div id="dinner-list"></div>
+      <div style="margin-top:12px; display:flex; gap:8px; align-items:center;">
+        <button class="save-btn" onclick="saveDinners()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        <span id="dinner-saved" style="font-size:12px; color:#16a34a; display:none;">✓ Saved!</span>
+      </div>
+    </div>
+
+    <!-- Saved / Favorite Meals -->
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-star"></i> Family Favorites</div>
+      <div id="saved-meals-list"></div>
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <input id="new-meal-input" class="camp-input wide" placeholder="Add a family favorite meal..." />
+        <select id="new-meal-tags" class="camp-input" style="width:auto;">
+          <option value="kids">Kid-Friendly</option>
+          <option value="quick">Quick</option>
+          <option value="healthy">Healthy</option>
+          <option value="weekend">Weekend</option>
+          <option value="busy">Soccer Night</option>
+        </select>
+        <button class="save-btn sm" onclick="addFavoriteMeal()"><i class="fa-solid fa-plus"></i> Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAMP & SOCCER TAB -->
+  <div class="parent-panel" id="panel-camp">
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-tent"></i> This Week's Camp</div>
+      <div class="camp-row">
+        <span class="camp-label">Camp Name</span>
+        <input class="camp-input wide" id="camp-name" placeholder="e.g. Science Camp" />
+        <span class="camp-label">Start</span>
+        <input class="camp-input time" id="camp-start" type="time" value="09:00" />
+        <span class="camp-label">End</span>
+        <input class="camp-input time" id="camp-end" type="time" value="15:00" />
+      </div>
+      <div class="camp-row">
+        <span class="camp-label">Drop-off location</span>
+        <input class="camp-input wide" id="camp-location" placeholder="e.g. Meadowbrook Community Center" />
+        <span class="camp-label">Bring lunch?</span>
+        <select class="camp-input" id="camp-lunch" style="width:auto;">
+          <option value="yes">Yes</option>
+          <option value="no">No — provided</option>
+        </select>
+      </div>
+      <div class="camp-row">
+        <span class="camp-label">Bag items (comma-separated)</span>
+        <input class="camp-input wide" id="camp-items" placeholder="e.g. sunscreen, water bottle, towel" />
+      </div>
+      <button class="save-btn green" onclick="saveCamp()"><i class="fa-solid fa-floppy-disk"></i> Save Camp Info</button>
+      <span id="camp-saved" style="font-size:12px; color:#16a34a; margin-left:10px; display:none;">✓ Saved!</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-futbol"></i> Soccer Practice</div>
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <div>
+          <div class="camp-label" style="margin-bottom:5px;">Monday Time</div>
+          <input class="camp-input time" id="soccer-mon" type="time" value="16:00" />
+        </div>
+        <div>
+          <div class="camp-label" style="margin-bottom:5px;">Wednesday Time</div>
+          <input class="camp-input time" id="soccer-wed" type="time" value="16:00" />
+        </div>
+        <div style="flex:1; min-width:180px;">
+          <div class="camp-label" style="margin-bottom:5px;">Location</div>
+          <input class="camp-input" style="width:100%;" id="soccer-loc" placeholder="Field / complex name" />
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <button class="save-btn" onclick="saveSoccer()"><i class="fa-solid fa-floppy-disk"></i> Save Soccer</button>
+        <span id="soccer-saved" style="font-size:12px; color:#16a34a; margin-left:10px; display:none;">✓ Saved!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="parent-panel" id="panel-settings">
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-display"></i> Screen Time Limits</div>
+      <div class="screen-grid">
+        <div class="screen-card">
+          <div class="name">Brady</div>
+          <div style="display:flex; align-items:baseline; justify-content:center; gap:2px;">
+            <input class="screen-time-input" id="brady-screen" value="90" min="0" max="180" type="number" />
+            <span style="font-size:14px; color:#9d174d; font-weight:700;">min</span>
+          </div>
+          <div style="font-size:11px; color:#9d174d;">per day</div>
+        </div>
+        <div class="screen-card">
+          <div class="name">James</div>
+          <div style="display:flex; align-items:baseline; justify-content:center; gap:2px;">
+            <input class="screen-time-input" id="james-screen" value="90" min="0" max="180" type="number" />
+            <span style="font-size:14px; color:#9d174d; font-weight:700;">min</span>
+          </div>
+          <div style="font-size:11px; color:#9d174d;">per day</div>
+        </div>
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:#64748b;">Must finish morning checklist before screen time. No screens during meals.</div>
+      <div style="margin-top:10px;">
+        <button class="save-btn" onclick="saveScreen()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+        <span id="screen-saved" style="font-size:12px; color:#16a34a; margin-left:10px; display:none;">✓ Saved!</span>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title"><i class="fa-solid fa-sun"></i> Morning Routine Items</div>
+      <div style="font-size:12px; color:#64748b; margin-bottom:10px;">These items appear on both boys' morning checklists.</div>
+      <div id="routine-list">
+        <div style="padding:6px 0; font-size:13px; color:#374151;">🧥 Get dressed</div>
+        <div style="padding:6px 0; font-size:13px; color:#374151;">🍳 Eat breakfast</div>
+        <div style="padding:6px 0; font-size:13px; color:#374151;">🪥 Brush teeth</div>
+        <div style="padding:6px 0; font-size:13px; color:#374151;">🎒 Pack your bag</div>
+        <div style="padding:6px 0; font-size:13px; color:#374151;">🧦 Socks & shoes on</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ KIDS VIEW ============ -->
+<div id="kids-view" class="view">
+  <div class="kids-header">
+    <h2>Good Morning! ☀️</h2>
+    <div class="today-date" id="kids-date"></div>
+  </div>
+  <div class="kid-tabs">
+    <button class="kid-tab active" onclick="switchKid('brady')">Brady</button>
+    <button class="kid-tab" onclick="switchKid('james')">James</button>
+  </div>
+
+  <div class="kid-content active" id="brady-content">
+    <div style="padding: 0 16px 80px;">
+      <div class="daily-info-card">
+        <div class="info-title"><i class="fa-solid fa-calendar-day"></i> Today's Schedule</div>
+        <div id="brady-schedule-today" class="info-value">Loading...</div>
+        <div id="brady-schedule-sub" class="info-sub"></div>
+      </div>
+      <div class="daily-info-card" style="border-color:#c4b5fd;">
+        <div class="info-title" style="color:#7c3aed;"><i class="fa-solid fa-utensils"></i> Dinner Tonight</div>
+        <div id="brady-dinner-tonight" class="info-value">Check with Mom or Dad</div>
+      </div>
+      <div class="checklist-card">
+        <div class="cl-title"><i class="fa-solid fa-clipboard-check"></i> Morning Checklist</div>
+        <div id="brady-checklist">
+          <div class="cl-item" onclick="toggleCheck(this, 'brady')"><span class="cl-icon">🧥</span><span class="cl-text">Get dressed</span><span class="cl-check">✓</span></div>
+          <div class="cl-item" onclick="toggleCheck(this, 'brady')"><span class="cl-icon">🍳</span><span class="cl-text">Eat breakfast</span><span class="cl-check">✓</span></div>
+          <div class="cl-item" onclick="toggleCheck(this, 'brady')"><span class="cl-icon">🪥</span><span class="cl-text">Brush teeth</span><span class="cl-check">✓</span></div>
+          <div class="cl-item" onclick="toggleCheck(this, 'brady')"><span class="cl-icon">🎒</span><span class="cl-text">Pack your bag</span><span class="cl-check">✓</span></div>
+          <div class="cl-item" onclick="toggleCheck(this, 'brady')"><span class="cl-icon">🧦</span><span class="cl-text">Socks & shoes on</span><span class="cl-check">✓</span></div>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="brady-progress" style="width:0%"></div></div>
+        <div class="complete-badge" id="brady-complete">🎉 All done! Great job Brady!</div>
+      </div>
+      <div class="screen-time-card">
+        <div class="st-title"><i class="fa-solid fa-gamepad"></i> Screen Time Today</div>
+        <div class="st-visual">
+          <div class="st-circle">
+            <span class="st-num" id="brady-screen-display">90</span>
+            <span class="st-unit">min</span>
+          </div>
+          <ul class="st-rules">
+            <li>Finish morning checklist first</li>
+            <li>No screens at the table</li>
+            <li>Stop when time is up</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kid-content" id="james-content">
+    <div style="padding: 0 16px 80px;">
+      <div class="daily-info-card">
+        <div class="info-title"><i class="fa-solid fa-calendar-day"></i> Today's Schedule</div>
+        <div id="james-schedule-today" class="info-value">Loading...</div>
+        <div id="james-schedule-sub" class="info-sub"></div>
+      </div>
+      <div class="daily-info-card" style="border-color:#c4b5fd;">
+        <div class="info-title" style="color:#7c3aed;"><i class="fa-solid fa-utensils"></i> Dinner Tonight</div>
+        <div id="james-dinner-tonight" class="info-value">Check with Mom or Dad</div>
+      </div>
+      <div class="checklist-card">
+        <div class="cl-title"><i class="fa-solid fa-clipboard-check"></i> Morning Checklist</div>
+        <div id="james-checklist">
+          <div class="cl-item" onclick="toggleCheck(this, 'james')"><span class="cl-icon">🧥</span><span class="cl-text">Get dressed</span><span class="cl-check">✓</span></div>
+          <div class="cl-item" onclick="toggleCheck(this, 'james')"><span class="cl-icon">🍳</span><span class="cl-text">Eat breakfast</span><span class="cl-check">✓</span></div>
+          <div class="cl-item" onclick="toggleCheck(this, 'james')"><span class="cl-icon">🪥</span><span class="cl-text">Brush teeth</span><span class="cl-check">✓</span></div>
+          <div class="cl-item" onclick="toggleCheck(this, 'james')"><span class="cl-icon">🎒</span><span class="cl-text">Pack your bag</span><span class="cl-check">✓</span></div>
+          <div class="cl-item" onclick="toggleCheck(this, 'james')"><span class="cl-icon">🧦</span><span class="cl-text">Socks & shoes on</span><span class="cl-check">✓</span></div>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="james-progress" style="width:0%"></div></div>
+        <div class="complete-badge" id="james-complete">🎉 All done! Great job James!</div>
+      </div>
+      <div class="screen-time-card">
+        <div class="st-title"><i class="fa-solid fa-gamepad"></i> Screen Time Today</div>
+        <div class="st-visual">
+          <div class="st-circle">
+            <span class="st-num" id="james-screen-display">90</span>
+            <span class="st-unit">min</span>
+          </div>
+          <ul class="st-rules">
+            <li>Finish morning checklist first</li>
+            <li>No screens at the table</li>
+            <li>Stop when time is up</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Edit Day</h3>
+    <div class="modal-row">
+      <label>Camp / Activity</label>
+      <input id="modal-camp" placeholder="e.g. Art Camp, Soccer Practice, Free Day" />
+    </div>
+    <div class="modal-row">
+      <label>Start Time</label>
+      <input id="modal-start" type="time" />
+    </div>
+    <div class="modal-row">
+      <label>End Time</label>
+      <input id="modal-end" type="time" />
+    </div>
+    <div class="modal-row">
+      <label>Notes</label>
+      <input id="modal-notes" placeholder="e.g. Pack lunch, bring sunscreen" />
+    </div>
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="save-btn" onclick="saveModal()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =========== STATE ===========
+let currentWeekOffset = 0;
+let editingDayIndex = -1;
+let weekData = {};
+let dinnerPlan = {};
+let campInfo = { name: '', start: '09:00', end: '15:00', location: '', lunch: 'yes', items: '' };
+let soccerInfo = { mon: '16:00', wed: '16:00', loc: '' };
+let activeFilters = new Set();
+let favoriteMeals = [];
+
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+// =========== DINNER DATABASE ===========
+const ALL_MEALS = [
+  { name: 'Tacos', time: 20, tags: ['quick','kids','busy'], emoji: '🌮', note: 'Ground beef or chicken, let kids build their own' },
+  { name: 'Pasta with Marinara', time: 20, tags: ['quick','kids','busy'], emoji: '🍝', note: 'Add Italian sausage for adults' },
+  { name: 'Grilled Cheese & Tomato Soup', time: 15, tags: ['quick','kids','busy'], emoji: '🧀', note: 'Classic easy win' },
+  { name: 'Chicken Quesadillas', time: 20, tags: ['quick','kids','busy','healthy'], emoji: '🫓', note: 'Rotisserie chicken makes it faster' },
+  { name: 'Burgers on the Grill', time: 30, tags: ['kids','weekend'], emoji: '🍔', note: 'Add sweet potato fries' },
+  { name: 'Sheet Pan Chicken & Veggies', time: 35, tags: ['healthy'], emoji: '🍗', note: 'Throw on a pan, minimal cleanup' },
+  { name: 'Homemade Pizza', time: 40, tags: ['kids','weekend'], emoji: '🍕', note: 'Let the boys pick toppings — they love it' },
+  { name: 'Stir Fry with Rice', time: 25, tags: ['quick','healthy','busy'], emoji: '🍜', note: 'Chicken or shrimp, use frozen veggies' },
+  { name: 'Salmon & Roasted Potatoes', time: 35, tags: ['healthy','weekend'], emoji: '🐟', note: 'Oven baked, simple prep' },
+  { name: 'Mac & Cheese (upgraded)', time: 20, tags: ['quick','kids','busy'], emoji: '🧀', note: 'Add broccoli & bacon bits' },
+  { name: 'Sloppy Joes', time: 20, tags: ['quick','kids','busy'], emoji: '🥪', note: 'Serve with chips or coleslaw' },
+  { name: 'Chicken Nuggets & Fries', time: 25, tags: ['quick','kids','busy'], emoji: '🍟', note: 'Oven baked, easy post-soccer meal' },
+  { name: 'BBQ Pulled Pork', time: 240, tags: ['weekend'], emoji: '🥩', note: 'Slow cooker — start in the morning' },
+  { name: 'Shrimp Tacos', time: 20, tags: ['quick','healthy','busy'], emoji: '🌮', note: 'Slaw, avocado, lime crema' },
+  { name: 'Veggie Fried Rice', time: 20, tags: ['quick','healthy','busy'], emoji: '🍚', note: 'Use leftover rice, add eggs' },
+  { name: 'Chicken Fajitas', time: 25, tags: ['quick','kids','busy'], emoji: '🫔', note: 'Let boys assemble their own' },
+  { name: 'Meatball Sub Night', time: 30, tags: ['kids'], emoji: '🥖', note: 'Frozen meatballs, marinara, garlic bread' },
+  { name: 'Turkey & Veggie Chili', time: 45, tags: ['healthy','weekend'], emoji: '🍲', note: 'Make extra, great leftovers' },
+  { name: 'Hot Dogs & Corn', time: 15, tags: ['quick','kids','busy'], emoji: '🌭', note: 'Fast, no complaints from the boys' },
+  { name: 'Baked Ziti', time: 50, tags: ['kids','weekend'], emoji: '🍝', note: 'Great for a Sunday — reheats well' },
+  { name: 'Fish Tacos', time: 25, tags: ['quick','healthy'], emoji: '🌮', note: 'Tilapia or cod, super fast' },
+  { name: 'Chicken Caesar Wrap', time: 15, tags: ['quick','healthy','busy'], emoji: '🌯', note: 'Rotisserie chicken shortcut' },
+  { name: 'Teriyaki Chicken Bowl', time: 30, tags: ['kids','healthy'], emoji: '🍱', note: 'Rice, broccoli, teriyaki sauce' },
+  { name: 'Pancake Dinner', time: 20, tags: ['quick','kids','busy'], emoji: '🥞', note: 'Brady and James always love this one' },
+  { name: 'Grilled Steak & Salad', time: 20, tags: ['quick','healthy','weekend'], emoji: '🥩', note: 'Simple weeknight treat' },
+];
+
+// =========== FILTERS ===========
+function toggleFilter(f) {
+  if (activeFilters.has(f)) activeFilters.delete(f);
+  else activeFilters.add(f);
+  document.getElementById('filter-' + f).classList.toggle('active');
+}
+
+function getFilteredMeals() {
+  if (activeFilters.size === 0) return ALL_MEALS;
+  return ALL_MEALS.filter(m => [...activeFilters].some(f => m.tags.includes(f)));
+}
+
+// =========== GENERATE IDEAS ===========
+function generateIdeas() {
+  const btn = document.getElementById('spin-btn');
+  btn.classList.add('spinning');
+  btn.querySelector('i').className = 'fa-solid fa-spinner';
+  setTimeout(() => {
+    btn.classList.remove('spinning');
+    btn.querySelector('i').className = 'fa-solid fa-dice';
+    renderIdeas();
+  }, 600);
+}
+
+function renderIdeas() {
+  const pool = getFilteredMeals();
+  const grid = document.getElementById('ideas-grid');
+  if (pool.length === 0) {
+    grid.innerHTML = '<div class="no-results" style="grid-column:1/-1;">No meals match those filters. Try fewer filters!</div>';
+    return;
+  }
+  // Pick up to 6 random meals
+  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 6);
+  grid.innerHTML = '';
+  shuffled.forEach((meal, idx) => {
+    const card = document.createElement('div');
+    card.className = 'idea-card';
+    card.innerHTML = `
+      <div class="idea-name">${meal.emoji} ${meal.name}</div>
+      <div class="idea-meta">
+        <span>⏱ ~${meal.time} min</span>
+        ${meal.tags.map(t => `<span class="idea-tag ${t}">${tagLabel(t)}</span>`).join('')}
+      </div>
+      <div style="font-size:11px; color:#64748b; margin-bottom:10px;">${meal.note}</div>
+      <div class="idea-actions">
+        <button class="assign-btn" onclick="openAssignPicker(this, '${meal.name}')">Assign to day ▾</button>
+        <button class="fav-btn" onclick="favMeal(this, '${meal.name}', '${meal.tags[0]}')">⭐</button>
+      </div>
+      <div class="assign-picker" id="picker-${idx}"></div>
+    `;
+    grid.appendChild(card);
+    // Fill picker days
+    const picker = card.querySelector('.assign-picker');
+    DAYS.forEach((day, di) => {
+      const b = document.createElement('button');
+      b.className = 'assign-day-btn';
+      b.textContent = DAYS_FULL[di];
+      b.onclick = () => assignMealToDay(meal.name, di, card);
+      picker.appendChild(b);
+    });
+  });
+}
+
+function tagLabel(t) {
+  return { quick:'⚡ Quick', busy:'⚽ Soccer', kids:'👦 Kids', healthy:'🥗 Healthy', weekend:'🍖 Weekend' }[t] || t;
+}
+
+function openAssignPicker(btn, mealName) {
+  // Close all open pickers first
+  document.querySelectorAll('.assign-picker.open').forEach(p => p.classList.remove('open'));
+  const picker = btn.closest('.idea-card').querySelector('.assign-picker');
+  picker.classList.toggle('open');
+}
+
+function assignMealToDay(mealName, dayIdx, card) {
+  dinnerPlan[dayIdx] = mealName;
+  renderDinners();
+  card.querySelector('.assign-picker').classList.remove('open');
+  renderWeek();
+  // Flash confirmation
+  const btn = card.querySelector('.assign-btn');
+  btn.textContent = '✓ Assigned to ' + DAYS_FULL[dayIdx];
+  btn.style.background = '#dcfce7';
+  btn.style.color = '#166534';
+  setTimeout(() => { btn.textContent = 'Assign to day ▾'; btn.style.background=''; btn.style.color=''; }, 2000);
+}
+
+function favMeal(btn, name, tag) {
+  btn.classList.add('faved');
+  if (!favoriteMeals.find(m => m.name === name)) {
+    favoriteMeals.push({ name, tag });
+    renderFavorites();
+  }
+}
+
+// =========== FAVORITES ===========
+function renderFavorites() {
+  const list = document.getElementById('saved-meals-list');
+  if (favoriteMeals.length === 0) {
+    list.innerHTML = '<div style="font-size:13px; color:#94a3b8; padding:8px 0;">No favorites yet — star a meal from the generator above, or add one below.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  favoriteMeals.forEach((meal, i) => {
+    const row = document.createElement('div');
+    row.className = 'saved-meal-row';
+    row.innerHTML = `
+      <span class="idea-tag ${meal.tag}" style="flex-shrink:0;">${tagLabel(meal.tag)}</span>
+      <span class="saved-meal-name">${meal.name}</span>
+      <button class="use-idea-btn" onclick="useFavoriteInDinner('${meal.name}')">Use this week</button>
+      <button class="del-btn" onclick="removeFavorite(${i})"><i class="fa-solid fa-times"></i></button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function useFavoriteInDinner(name) {
+  // Find next empty day
+  for (let i = 0; i < 7; i++) {
+    if (!dinnerPlan[i]) {
+      dinnerPlan[i] = name;
+      renderDinners();
+      renderWeek();
+      switchTab('dinners');
+      return;
+    }
+  }
+  alert('All days already have a dinner planned!');
+}
+
+function addFavoriteMeal() {
+  const name = document.getElementById('new-meal-input').value.trim();
+  const tag = document.getElementById('new-meal-tags').value;
+  if (!name) return;
+  favoriteMeals.push({ name, tag });
+  document.getElementById('new-meal-input').value = '';
+  renderFavorites();
+}
+
+function removeFavorite(i) {
+  favoriteMeals.splice(i, 1);
+  renderFavorites();
+}
+
+// =========== WEEK ===========
+function getWeekStart(offset = 0) {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day;
+  const weekStart = new Date(now.setDate(diff + (offset * 7)));
+  weekStart.setHours(0,0,0,0);
+  return weekStart;
+}
+
+function formatDate(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+function getDayKey(date) { return date.toISOString().slice(0,10); }
+function isToday(date) {
+  const t = new Date();
+  return date.getFullYear()===t.getFullYear() && date.getMonth()===t.getMonth() && date.getDate()===t.getDate();
+}
+function fmtTime(t) {
+  if (!t) return '';
+  const [h,m] = t.split(':').map(Number);
+  return `${h%12||12}:${m.toString().padStart(2,'0')} ${h>=12?'PM':'AM'}`;
+}
+
+function renderWeek() {
+  const ws = getWeekStart(currentWeekOffset);
+  const we = new Date(ws); we.setDate(we.getDate()+6);
+  document.getElementById('week-label').textContent = `${formatDate(ws)} – ${formatDate(we)}`;
+  const grid = document.getElementById('days-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(ws); d.setDate(d.getDate()+i);
+    const key = getDayKey(d);
+    const dayInfo = weekData[key] || {};
+    const isSoccer = (i===1 || i===3);
+    const card = document.createElement('div');
+    card.className = 'day-card' + (isToday(d) ? ' today' : '');
+    card.innerHTML = `
+      <div class="day-label">${DAYS[i]}</div>
+      <div class="day-date">${d.getDate()}</div>
+      ${campInfo.name ? `<div class="event-pill camp"><i class="fa-solid fa-tent"></i> ${campInfo.name}</div>` : ''}
+      ${isSoccer ? `<div class="event-pill soccer"><i class="fa-solid fa-futbol"></i> Soccer ${fmtTime(i===1?soccerInfo.mon:soccerInfo.wed)}</div>` : ''}
+      ${dayInfo.camp ? `<div class="event-pill camp"><i class="fa-solid fa-star"></i> ${dayInfo.camp}</div>` : ''}
+      ${dinnerPlan[i] ? `<div class="event-pill dinner"><i class="fa-solid fa-utensils"></i> ${dinnerPlan[i]}</div>` : ''}
+      <button class="event-edit-btn" onclick="openModal(${i}, '${key}')"><i class="fa-solid fa-pen"></i></button>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+function changeWeek(dir) { currentWeekOffset += dir; renderWeek(); }
+
+// =========== DINNERS ===========
+function renderDinners() {
+  const list = document.getElementById('dinner-list');
+  list.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const isSoccer = (i===1||i===3);
+    const row = document.createElement('div');
+    row.className = 'dinner-row';
+    row.innerHTML = `
+      <span class="dinner-day">${DAYS[i]}</span>
+      ${isSoccer ? '<span style="font-size:10px; color:#166534; font-weight:700; background:#dcfce7; padding:2px 6px; border-radius:8px;">⚽</span>' : '<span style="width:32px;"></span>'}
+      <input class="dinner-input" id="dinner-${i}" placeholder="${isSoccer ? 'Quick meal — soccer night!' : 'What\'s for dinner?'}" value="${dinnerPlan[i] || ''}" oninput="dinnerPlan[${i}]=this.value" />
+    `;
+    list.appendChild(row);
+  }
+}
+
+function saveDinners() {
+  for (let i = 0; i < 7; i++) {
+    const v = document.getElementById(`dinner-${i}`);
+    if (v) dinnerPlan[i] = v.value;
+  }
+  renderWeek();
+  updateKidsView();
+  flashSaved('dinner-saved');
+}
+
+// =========== CAMP ===========
+function saveCamp() {
+  campInfo.name = document.getElementById('camp-name').value;
+  campInfo.start = document.getElementById('camp-start').value;
+  campInfo.end = document.getElementById('camp-end').value;
+  campInfo.location = document.getElementById('camp-location').value;
+  campInfo.lunch = document.getElementById('camp-lunch').value;
+  campInfo.items = document.getElementById('camp-items').value;
+  renderWeek();
+  updateKidsView();
+  flashSaved('camp-saved');
+}
+
+function saveSoccer() {
+  soccerInfo.mon = document.getElementById('soccer-mon').value;
+  soccerInfo.wed = document.getElementById('soccer-wed').value;
+  soccerInfo.loc = document.getElementById('soccer-loc').value;
+  renderWeek();
+  flashSaved('soccer-saved');
+}
+
+function saveScreen() {
+  document.getElementById('brady-screen-display').textContent = document.getElementById('brady-screen').value;
+  document.getElementById('james-screen-display').textContent = document.getElementById('james-screen').value;
+  flashSaved('screen-saved');
+}
+
+function flashSaved(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = 'inline';
+  setTimeout(() => { el.style.display = 'none'; }, 2500);
+}
+
+// =========== MODAL ===========
+function openModal(dayIndex, key) {
+  editingDayIndex = dayIndex;
+  document.getElementById('modal-title').textContent = `Edit ${DAYS_FULL[dayIndex]}`;
+  const d = weekData[key] || {};
+  document.getElementById('modal-camp').value = d.camp || '';
+  document.getElementById('modal-start').value = d.start || '';
+  document.getElementById('modal-end').value = d.end || '';
+  document.getElementById('modal-notes').value = d.notes || '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
+
+function saveModal() {
+  const ws = getWeekStart(currentWeekOffset);
+  const d = new Date(ws); d.setDate(d.getDate() + editingDayIndex);
+  const key = getDayKey(d);
+  weekData[key] = {
+    camp: document.getElementById('modal-camp').value,
+    start: document.getElementById('modal-start').value,
+    end: document.getElementById('modal-end').value,
+    notes: document.getElementById('modal-notes').value,
+  };
+  closeModal();
+  renderWeek();
+  updateKidsView();
+}
+
+// =========== CHECKLIST ===========
+function toggleCheck(el, kid) {
+  el.classList.toggle('done');
+  updateProgress(kid);
+}
+
+function updateProgress(kid) {
+  const items = document.querySelectorAll(`#${kid}-checklist .cl-item`);
+  const done = document.querySelectorAll(`#${kid}-checklist .cl-item.done`).length;
+  const pct = items.length ? Math.round(done / items.length * 100) : 0;
+  const bar = document.getElementById(`${kid}-progress`);
+  if (bar) bar.style.width = pct + '%';
+  const badge = document.getElementById(`${kid}-complete`);
+  if (badge) badge.style.display = pct === 100 ? 'block' : 'none';
+}
+
+// =========== KIDS VIEW ===========
+function updateKidsView() {
+  const today = new Date();
+  const dayIdx = today.getDay();
+  const key = getDayKey(today);
+  const todayData = weekData[key] || {};
+  const isSoccer = (dayIdx===1||dayIdx===3);
+
+  document.getElementById('kids-date').textContent = today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  let schedPrimary = '', schedSub = '';
+  if (campInfo.name) {
+    schedPrimary = `⛺ ${campInfo.name}`;
+    schedSub = `${fmtTime(campInfo.start)} – ${fmtTime(campInfo.end)}`;
+    if (campInfo.location) schedSub += ` · ${campInfo.location}`;
+    if (campInfo.lunch === 'yes') schedSub += ' · 🥪 Pack your lunch!';
+  } else if (todayData.camp) {
+    schedPrimary = `⭐ ${todayData.camp}`;
+    schedSub = todayData.start ? `${fmtTime(todayData.start)} – ${fmtTime(todayData.end)}` : '';
+    if (todayData.notes) schedSub += (schedSub?' · ':'')+todayData.notes;
+  } else {
+    schedPrimary = 'Free Day! 🌟';
+    schedSub = 'No camp today';
+  }
+  if (isSoccer) {
+    const soccerTime = fmtTime(dayIdx===1 ? soccerInfo.mon : soccerInfo.wed);
+    schedSub += `<br>⚽ Soccer Practice @ ${soccerTime}${soccerInfo.loc?' · '+soccerInfo.loc:''}`;
+  }
+
+  ['brady','james'].forEach(kid => {
+    const pEl = document.getElementById(`${kid}-schedule-today`);
+    const sEl = document.getElementById(`${kid}-schedule-sub`);
+    if (pEl) pEl.textContent = schedPrimary;
+    if (sEl) sEl.innerHTML = schedSub;
+    const dinnerEl = document.getElementById(`${kid}-dinner-tonight`);
+    if (dinnerEl) dinnerEl.textContent = dinnerPlan[dayIdx] || 'Check with Mom or Dad';
+  });
+
+  // Camp bag checklist items
+  if (campInfo.items) {
+    const items = campInfo.items.split(',').map(s=>s.trim()).filter(Boolean);
+    ['brady-checklist','james-checklist'].forEach(clId => {
+      const cl = document.getElementById(clId);
+      if (!cl) return;
+      cl.querySelectorAll('.camp-item').forEach(e=>e.remove());
+      const kid = clId.split('-')[0];
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'cl-item camp-item';
+        div.onclick = function() { toggleCheck(this, kid); };
+        div.innerHTML = `<span class="cl-icon">🎒</span><span class="cl-text">Pack: ${item}</span><span class="cl-check">✓</span>`;
+        cl.appendChild(div);
+      });
+      if (campInfo.lunch==='yes') {
+        const lunchDiv = document.createElement('div');
+        lunchDiv.className = 'cl-item camp-item';
+        lunchDiv.onclick = function() { toggleCheck(this, kid); };
+        lunchDiv.innerHTML = `<span class="cl-icon">🥪</span><span class="cl-text">Make & pack your lunch</span><span class="cl-check">✓</span>`;
+        cl.appendChild(lunchDiv);
+      }
+    });
+  }
+  updateProgress('brady');
+  updateProgress('james');
+}
+
+// =========== TABS ===========
+function switchTab(tab) {
+  document.querySelectorAll('.parent-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.parent-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.parent-tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+}
+
+function switchKid(kid) {
+  document.querySelectorAll('.kid-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.kid-content').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.kid-tab[onclick="switchKid('${kid}')"]`).classList.add('active');
+  document.getElementById(`${kid}-content`).classList.add('active');
+}
+
+function switchView(v) {
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(view=>view.classList.remove('active'));
+  document.querySelector(`.view-btn[onclick="switchView('${v}')"]`).classList.add('active');
+  document.getElementById(`${v}-view`).classList.add('active');
+  if (v==='kids') updateKidsView();
+}
+
+// =========== INIT ===========
+renderWeek();
+renderDinners();
+renderFavorites();
+updateKidsView();
+</script>
+</body>
+</html>
