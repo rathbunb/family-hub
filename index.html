@@ -216,6 +216,7 @@
     <div style="font-size:18px; font-weight:700;">🏠 Rathbun HQ</div>
     <div class="subtitle">Family Command Center</div>
   </div>
+  <span id="sync-badge" style="font-size:11px; font-weight:700; padding:4px 10px; border-radius:12px; background:#fef3c7; color:#92400e; margin-right:8px; cursor:default;" title="Sync status">⚙️ Setup needed</span>
   <div class="view-toggle">
     <button class="view-btn active" onclick="switchView('parent')"><i class="fa-solid fa-gear"></i> Parents</button>
     <button class="view-btn" onclick="switchView('kids')">🎮 Kids</button>
@@ -321,27 +322,54 @@
       <span id="camp-saved" style="font-size:12px; color:#16a34a; margin-left:10px; display:none;">✓ Saved!</span>
     </div>
 
-    <div class="section">
-      <div class="section-title"><i class="fa-solid fa-futbol"></i> Soccer Practice</div>
-      <div style="display:flex; gap:16px; flex-wrap:wrap;">
-        <div>
-          <div class="camp-label" style="margin-bottom:5px;">Monday Time</div>
-          <input class="camp-input time" id="soccer-mon" type="time" value="16:00" />
-        </div>
-        <div>
-          <div class="camp-label" style="margin-bottom:5px;">Wednesday Time</div>
-          <input class="camp-input time" id="soccer-wed" type="time" value="16:00" />
-        </div>
-        <div style="flex:1; min-width:180px;">
-          <div class="camp-label" style="margin-bottom:5px;">Location</div>
-          <input class="camp-input" style="width:100%;" id="soccer-loc" placeholder="Field / complex name" />
-        </div>
+    <div class="section" style="border-color:#bbf7d0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+        <div class="section-title" style="margin:0;"><i class="fa-solid fa-futbol" style="color:#16a34a;"></i> James — Boys U11 Black</div>
+        <span style="font-size:11px;background:#dcfce7;color:#166534;padding:3px 8px;border-radius:10px;font-weight:600;">⚽ Live from PlayMetrics</span>
       </div>
-      <div style="margin-top:12px;">
-        <button class="save-btn" onclick="saveSoccer()"><i class="fa-solid fa-floppy-disk"></i> Save Soccer</button>
-        <span id="soccer-saved" style="font-size:12px; color:#16a34a; margin-left:10px; display:none;">✓ Saved!</span>
+
+      <!-- Live schedule from PlayMetrics -->
+      <div id="soccer-schedule-list" style="margin-bottom:14px;">
+        <div style="color:#94a3b8;font-size:13px;">Loading schedule…</div>
+      </div>
+
+      <!-- Collapsible manual override -->
+      <details style="margin-top:8px;">
+        <summary style="font-size:12px;font-weight:600;color:#64748b;cursor:pointer;user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
+          <span style="font-size:10px;">▶</span> Manual override (legacy fields)
+        </summary>
+        <div style="padding-top:10px;display:flex; gap:16px; flex-wrap:wrap;">
+          <div>
+            <div class="camp-label" style="margin-bottom:5px;">Monday Time</div>
+            <input class="camp-input time" id="soccer-mon" type="time" value="16:00" />
+          </div>
+          <div>
+            <div class="camp-label" style="margin-bottom:5px;">Wednesday Time</div>
+            <input class="camp-input time" id="soccer-wed" type="time" value="16:00" />
+          </div>
+          <div style="flex:1; min-width:180px;">
+            <div class="camp-label" style="margin-bottom:5px;">Location</div>
+            <input class="camp-input" style="width:100%;" id="soccer-loc" placeholder="Field / complex name" />
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <button class="save-btn" onclick="saveSoccer()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+          <span id="soccer-saved" style="font-size:12px; color:#16a34a; margin-left:10px; display:none;">✓ Saved!</span>
+        </div>
+      </details>
+    </div>
+
+    <!-- Brady Soccer Schedule -->
+    <div class="section" style="border-color:#bfdbfe; margin-top:4px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+        <div class="section-title" style="margin:0;"><i class="fa-solid fa-futbol" style="color:#2563eb;"></i> Brady — Boys U13</div>
+        <span style="font-size:11px;background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:10px;font-weight:600;">⚽ Live from PlayMetrics</span>
+      </div>
+      <div id="brady-soccer-schedule-list" style="margin-top:12px;">
+        <div style="color:#94a3b8;font-size:13px;">Loading schedule…</div>
       </div>
     </div>
+
   </div>
 
   <!-- SETTINGS TAB -->
@@ -383,6 +411,32 @@
         <div style="padding:6px 0; font-size:13px; color:#374151;">🧦 Socks & shoes on</div>
       </div>
     </div>
+
+      <!-- Data Management -->
+      <div class="section" style="border-color:#bfdbfe; margin-top:12px;">
+        <div class="section-title"><i class="fa-solid fa-rotate" style="color:#2563eb;"></i> Real-Time Sync</div>
+        <div id="sync-status-box" style="background:#eff6ff; border-radius:10px; padding:12px; margin-bottom:14px; font-size:13px; color:#1e40af; line-height:1.7;">
+          <strong>Status: <span id="sync-status-text">Not yet configured</span></strong><br>
+          Once Firebase is set up, any change you or Sarah makes will appear on each other's device within seconds.
+        </div>
+        <div style="font-size:13px; color:#374151; line-height:1.8; margin-bottom:14px;">
+          <strong>📋 5-minute Firebase setup:</strong><br>
+          <span style="color:#64748b;">
+          1. Go to <strong>console.firebase.google.com</strong> → Create a project (call it <em>rathbun-family-hub</em>)<br>
+          2. Click <strong>Realtime Database</strong> → Create database → Start in <strong>test mode</strong><br>
+          3. Go to Project Settings ⚙️ → Your apps → Web → Register app → Copy the config<br>
+          4. Open <strong>github.com/rathbunb/family-hub</strong> → Click <code>index.html</code> → ✏️ Edit<br>
+          5. Find <code>FIREBASE_CONFIG = {</code> and paste your values → Commit changes<br>
+          6. Wait 60 seconds → refresh the app → badge turns green ✓
+          </span>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button onclick="saveAll()" class="save-btn"><i class="fa-solid fa-floppy-disk"></i> Save Now</button>
+          <button onclick="clearAll()" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-trash"></i> Clear All Data</button>
+          <a href="https://console.firebase.google.com/" target="_blank" style="background:#f59e0b; color:white; border-radius:8px; padding:8px 16px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-fire"></i> Open Firebase</a>
+        </div>
+      </div>
+
   </div>
 </div>
 
@@ -474,6 +528,13 @@
         <div class="progress-bar-wrap"><div class="progress-bar" id="brady-progress" style="width:0%"></div></div>
         <div class="complete-badge" id="brady-complete">🎉 All done! Great job Brady!</div>
       </div>
+
+      <div style="background:white; border-radius:14px; padding:16px; margin-bottom:14px; border:2px solid #bfdbfe;">
+        <div style="font-size:16px; font-weight:800; color:#1e40af; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          ⚽ Brady's Upcoming Soccer
+        </div>
+        <div id="brady-kids-soccer"></div>
+      </div>
       <div class="screen-time-card">
         <div class="st-title"><i class="fa-solid fa-gamepad"></i> Screen Time Today</div>
         <div class="st-visual">
@@ -513,6 +574,13 @@
         </div>
         <div class="progress-bar-wrap"><div class="progress-bar" id="james-progress" style="width:0%"></div></div>
         <div class="complete-badge" id="james-complete">🎉 All done! Great job James!</div>
+      </div>
+
+      <div style="background:white; border-radius:14px; padding:16px; margin-bottom:14px; border:2px solid #bbf7d0;">
+        <div style="font-size:16px; font-weight:800; color:#16a34a; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
+          ⚽ James's Upcoming Soccer
+        </div>
+        <div id="james-kids-soccer"></div>
       </div>
       <div class="screen-time-card">
         <div class="st-title"><i class="fa-solid fa-gamepad"></i> Screen Time Today</div>
@@ -560,6 +628,156 @@
 </div>
 
 <script>
+
+// =========== JAMES U11 SOCCER SCHEDULE (auto-generated from PlayMetrics ICS) ===========
+const SOCCER_EVENTS = [{"date": "2026-06-01", "dow": "Mon", "month": "Jun", "day": 1, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-03", "dow": "Wed", "month": "Jun", "day": 3, "startTime": "5:30 PM", "endTime": "7:00 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-08", "dow": "Mon", "month": "Jun", "day": 8, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-10", "dow": "Wed", "month": "Jun", "day": 10, "startTime": "5:30 PM", "endTime": "7:00 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-15", "dow": "Mon", "month": "Jun", "day": 15, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-17", "dow": "Wed", "month": "Jun", "day": 17, "startTime": "5:30 PM", "endTime": "7:00 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-20", "dow": "Sat", "month": "Jun", "day": 20, "startTime": "10:00 AM", "endTime": "11:00 AM", "label": "Game", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-22", "dow": "Mon", "month": "Jun", "day": 22, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-24", "dow": "Wed", "month": "Jun", "day": 24, "startTime": "5:30 PM", "endTime": "7:00 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-26", "dow": "Fri", "month": "Jun", "day": 26, "startTime": "12:00 PM", "endTime": "1:00 PM", "label": "Game", "location": "1100 S Skagit St, Burlington, WA 98233, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-27", "dow": "Sat", "month": "Jun", "day": 27, "startTime": "12:00 PM", "endTime": "1:00 PM", "label": "Game", "location": "1100 S Skagit St, Burlington, WA 98233, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-27", "dow": "Sat", "month": "Jun", "day": 27, "startTime": "6:00 PM", "endTime": "7:00 PM", "label": "Game", "location": "1100 S Skagit St, Burlington, WA 98233, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-28", "dow": "Sun", "month": "Jun", "day": 28, "startTime": "10:30 AM", "endTime": "11:30 AM", "label": "Game", "location": "TBD", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-28", "dow": "Sun", "month": "Jun", "day": 28, "startTime": "1:30 PM", "endTime": "2:30 PM", "label": "Game", "location": "1100 S Skagit St, Burlington, WA 98233, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-07-06", "dow": "Mon", "month": "Jul", "day": 6, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": true, "allDay": false}, {"date": "2026-07-08", "dow": "Wed", "month": "Jul", "day": 8, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-13", "dow": "Mon", "month": "Jul", "day": 13, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-15", "dow": "Wed", "month": "Jul", "day": 15, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-20", "dow": "Mon", "month": "Jul", "day": 20, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-22", "dow": "Wed", "month": "Jul", "day": 22, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-24", "dow": "Fri", "month": "Jul", "day": 24, "startTime": "", "endTime": "", "label": "Crossfire Select Cup", "location": "Sixty Acres Park, Northeast 116th Street, Redmond, WA, USA", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-07-25", "dow": "Sat", "month": "Jul", "day": 25, "startTime": "", "endTime": "", "label": "Crossfire Select Cup", "location": "Sixty Acres Park, Northeast 116th Street, Redmond, WA, USA", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-07-26", "dow": "Sun", "month": "Jul", "day": 26, "startTime": "", "endTime": "", "label": "Crossfire Select Cup", "location": "Sixty Acres Park, Northeast 116th Street, Redmond, WA, USA", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-07-27", "dow": "Mon", "month": "Jul", "day": 27, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-29", "dow": "Wed", "month": "Jul", "day": 29, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-03", "dow": "Mon", "month": "Aug", "day": 3, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-05", "dow": "Wed", "month": "Aug", "day": 5, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-10", "dow": "Mon", "month": "Aug", "day": 10, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-12", "dow": "Wed", "month": "Aug", "day": 12, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-14", "dow": "Fri", "month": "Aug", "day": 14, "startTime": "", "endTime": "", "label": "Island Cup", "location": "Battle Point Park, Arrow Point Drive Northeast, Bainbridge", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-08-15", "dow": "Sat", "month": "Aug", "day": 15, "startTime": "", "endTime": "", "label": "Island Cup", "location": "Battle Point Park, Arrow Point Drive Northeast, Bainbridge", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-08-16", "dow": "Sun", "month": "Aug", "day": 16, "startTime": "", "endTime": "", "label": "Island Cup", "location": "Battle Point Park, Arrow Point Drive Northeast, Bainbridge", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-08-17", "dow": "Mon", "month": "Aug", "day": 17, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-19", "dow": "Wed", "month": "Aug", "day": 19, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-24", "dow": "Mon", "month": "Aug", "day": 24, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-25", "dow": "Tue", "month": "Aug", "day": 25, "startTime": "6:30 PM", "endTime": "8:30 PM", "label": "BIFC Annual Summer BBQ", "location": "Battle Point Park, Arrow Point Drive Northeast, Bainbridge", "type": "event", "canceled": false, "allDay": false}, {"date": "2026-08-26", "dow": "Wed", "month": "Aug", "day": 26, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-31", "dow": "Mon", "month": "Aug", "day": 31, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-09-02", "dow": "Wed", "month": "Sep", "day": 2, "startTime": "5:45 PM", "endTime": "7:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}];
+
+function getSoccerThisWeek() {
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0=Sun
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  return SOCCER_EVENTS.filter(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    return d >= monday && d <= sunday;
+  });
+}
+
+function getSoccerUpcoming(n) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  return SOCCER_EVENTS
+    .filter(e => new Date(e.date + 'T12:00:00') >= today)
+    .slice(0, n || 8);
+}
+
+function renderSoccerSchedule() {
+  const el = document.getElementById('soccer-schedule-list');
+  if (!el) return;
+  const upcoming = getSoccerUpcoming(20);
+  if (!upcoming.length) { el.innerHTML = '<p style="color:#94a3b8;font-size:13px;">No upcoming events.</p>'; return; }
+
+  const typeColors = {
+    practice:   { bg:'#eff6ff', border:'#bfdbfe', icon:'⚽', label:'Practice',   text:'#1e40af' },
+    tournament: { bg:'#fef3c7', border:'#fcd34d', icon:'🏆', label:'Tournament', text:'#92400e' },
+    game:       { bg:'#f0fdf4', border:'#86efac', icon:'🥅', label:'Game',       text:'#166534' },
+    event:      { bg:'#fdf4ff', border:'#e9d5ff', icon:'🎉', label:'Event',      text:'#7e22ce' },
+    other:      { bg:'#f8fafc', border:'#e2e8f0', icon:'📅', label:'',          text:'#475569' },
+  };
+
+  // Group by week
+  let html = '';
+  let lastWeek = null;
+  for (const e of upcoming) {
+    const d = new Date(e.date + 'T12:00:00');
+    const dow = d.getDay();
+    const weekStart = new Date(d);
+    weekStart.setDate(d.getDate() - ((dow + 6) % 7));
+    const weekKey = weekStart.toISOString().slice(0,10);
+
+    if (weekKey !== lastWeek) {
+      if (lastWeek !== null) html += '</div>';
+      const now = new Date(); now.setHours(0,0,0,0);
+      const thisWeekStart = new Date(now); thisWeekStart.setDate(now.getDate() - ((now.getDay()+6)%7));
+      const isThisWeek = weekKey === thisWeekStart.toISOString().slice(0,10);
+      const nextWeekStart = new Date(thisWeekStart); nextWeekStart.setDate(thisWeekStart.getDate()+7);
+      const isNextWeek = weekKey === nextWeekStart.toISOString().slice(0,10);
+      const weekLabel = isThisWeek ? '📅 This Week' : isNextWeek ? 'Next Week' :
+        weekStart.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' week';
+      html += `<div class="soccer-week-group" style="margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:6px;">${weekLabel}</div>`;
+      lastWeek = weekKey;
+    }
+
+    const c = typeColors[e.type] || typeColors.other;
+    const cancelStyle = e.canceled ? 'opacity:0.5;text-decoration:line-through;' : '';
+    const timeStr = e.allDay ? 'All Day' : (e.startTime + (e.endTime ? '–' + e.endTime : ''));
+    const locShort = e.location ? e.location.split(',')[0] : '';
+
+    html += `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:${c.bg};border:1px solid ${c.border};border-radius:8px;margin-bottom:6px;${cancelStyle}">
+      <div style="font-size:18px;line-height:1;margin-top:2px;">${c.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:13px;color:${c.text};">
+          ${e.canceled ? '❌ CANCELED — ' : ''}${e.label}
+        </div>
+        <div style="font-size:12px;color:#475569;margin-top:2px;">
+          ${e.dow} ${e.month} ${e.day} &nbsp;·&nbsp; ${timeStr}
+        </div>
+        ${locShort ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📍 ${locShort}</div>` : ''}
+      </div>
+    </div>`;
+  }
+  if (lastWeek !== null) html += '</div>';
+  el.innerHTML = html;
+}
+
+
+// =========== BRADY U13 SOCCER SCHEDULE (auto-generated from PlayMetrics ICS) ===========
+const BRADY_SOCCER_EVENTS = [{"date": "2026-06-01", "dow": "Mon", "month": "Jun", "day": 1, "startTime": "2:15 PM", "endTime": "3:45 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-03", "dow": "Wed", "month": "Jun", "day": 3, "startTime": "3:45 PM", "endTime": "5:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-08", "dow": "Mon", "month": "Jun", "day": 8, "startTime": "2:15 PM", "endTime": "3:45 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-10", "dow": "Wed", "month": "Jun", "day": 10, "startTime": "3:45 PM", "endTime": "5:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-15", "dow": "Mon", "month": "Jun", "day": 15, "startTime": "2:15 PM", "endTime": "3:45 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-17", "dow": "Wed", "month": "Jun", "day": 17, "startTime": "3:45 PM", "endTime": "5:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-22", "dow": "Mon", "month": "Jun", "day": 22, "startTime": "2:15 PM", "endTime": "3:45 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-24", "dow": "Wed", "month": "Jun", "day": 24, "startTime": "3:45 PM", "endTime": "5:15 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-06-26", "dow": "Fri", "month": "Jun", "day": 26, "startTime": "1:30 PM", "endTime": "2:30 PM", "label": "Game", "location": "1100 S Skagit St, Burlington, WA 98233, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-26", "dow": "Fri", "month": "Jun", "day": 26, "startTime": "6:00 PM", "endTime": "7:00 PM", "label": "Game", "location": "1100 S Skagit St, Burlington, WA 98233, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-27", "dow": "Sat", "month": "Jun", "day": 27, "startTime": "1:30 PM", "endTime": "2:30 PM", "label": "Game", "location": "1100 S Skagit St, Burlington, WA 98233, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-28", "dow": "Sun", "month": "Jun", "day": 28, "startTime": "10:30 AM", "endTime": "11:30 AM", "label": "Game", "location": "TBD", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-06-28", "dow": "Sun", "month": "Jun", "day": 28, "startTime": "1:30 PM", "endTime": "2:30 PM", "label": "Game", "location": "1100 S Skagit St, Burlington, WA 98233, USA", "type": "game", "canceled": false, "allDay": false}, {"date": "2026-07-06", "dow": "Mon", "month": "Jul", "day": 6, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": true, "allDay": false}, {"date": "2026-07-08", "dow": "Wed", "month": "Jul", "day": 8, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-13", "dow": "Mon", "month": "Jul", "day": 13, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-15", "dow": "Wed", "month": "Jul", "day": 15, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-20", "dow": "Mon", "month": "Jul", "day": 20, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-22", "dow": "Wed", "month": "Jul", "day": 22, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-24", "dow": "Fri", "month": "Jul", "day": 24, "startTime": "", "endTime": "", "label": "Crossfire Select Cup", "location": "60 Acres Soccer Park \u2013 14800 NE 116th St, Redmond, WA 98052", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-07-25", "dow": "Sat", "month": "Jul", "day": 25, "startTime": "", "endTime": "", "label": "Copy of Crossfire Select Cup", "location": "60 Acres Soccer Park \u2013 14800 NE 116th St, Redmond, WA 98052", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-07-26", "dow": "Sun", "month": "Jul", "day": 26, "startTime": "", "endTime": "", "label": "Copy of Crossfire Select Cup", "location": "60 Acres Soccer Park \u2013 14800 NE 116th St, Redmond, WA 98052", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-07-27", "dow": "Mon", "month": "Jul", "day": 27, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-07-29", "dow": "Wed", "month": "Jul", "day": 29, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9330 High School Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-03", "dow": "Mon", "month": "Aug", "day": 3, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-05", "dow": "Wed", "month": "Aug", "day": 5, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-10", "dow": "Mon", "month": "Aug", "day": 10, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-12", "dow": "Wed", "month": "Aug", "day": 12, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-14", "dow": "Fri", "month": "Aug", "day": 14, "startTime": "", "endTime": "", "label": "Island Cup", "location": "Battle Point Park, Arrow Point Drive Northeast, Bainbridge", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-08-15", "dow": "Sat", "month": "Aug", "day": 15, "startTime": "", "endTime": "", "label": "Island Cup", "location": "Battle Point Park, Arrow Point Drive Northeast, Bainbridge", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-08-16", "dow": "Sun", "month": "Aug", "day": 16, "startTime": "", "endTime": "", "label": "Island Cup", "location": "Battle Point Park, Arrow Point Drive Northeast, Bainbridge", "type": "tournament", "canceled": false, "allDay": true}, {"date": "2026-08-17", "dow": "Mon", "month": "Aug", "day": 17, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-19", "dow": "Wed", "month": "Aug", "day": 19, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-24", "dow": "Mon", "month": "Aug", "day": 24, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-25", "dow": "Tue", "month": "Aug", "day": 25, "startTime": "6:30 PM", "endTime": "8:30 PM", "label": "BIFC Annual Summer BBQ", "location": "Battle Point Park, Arrow Point Drive Northeast, Bainbridge", "type": "event", "canceled": false, "allDay": false}, {"date": "2026-08-26", "dow": "Wed", "month": "Aug", "day": 26, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-08-31", "dow": "Mon", "month": "Aug", "day": 31, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}, {"date": "2026-09-02", "dow": "Wed", "month": "Sep", "day": 2, "startTime": "4:00 PM", "endTime": "5:30 PM", "label": "Practice", "location": "9125 Sportsman Club Rd NE, Bainbridge Island, WA 98110, USA", "type": "practice", "canceled": false, "allDay": false}];
+
+function getBradySoccerUpcoming(n) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  return BRADY_SOCCER_EVENTS
+    .filter(e => new Date(e.date + 'T12:00:00') >= today)
+    .slice(0, n || 20);
+}
+
+function renderBradySoccerSchedule() {
+  const el = document.getElementById('brady-soccer-schedule-list');
+  if (!el) return;
+  const upcoming = getBradySoccerUpcoming(20);
+  if (!upcoming.length) { el.innerHTML = '<p style="color:#94a3b8;font-size:13px;">No upcoming events.</p>'; return; }
+
+  const typeColors = {
+    practice:   { bg:'#eff6ff', border:'#bfdbfe', icon:'⚽', text:'#1e40af' },
+    tournament: { bg:'#fef3c7', border:'#fcd34d', icon:'🏆', text:'#92400e' },
+    game:       { bg:'#f0fdf4', border:'#86efac', icon:'🥅', text:'#166534' },
+    event:      { bg:'#fdf4ff', border:'#e9d5ff', icon:'🎉', text:'#7e22ce' },
+    other:      { bg:'#f8fafc', border:'#e2e8f0', icon:'📅', text:'#475569' },
+  };
+
+  let out = '';
+  let lastWeek = null;
+  for (const e of upcoming) {
+    const d = new Date(e.date + 'T12:00:00');
+    const dow = d.getDay();
+    const weekStart = new Date(d);
+    weekStart.setDate(d.getDate() - ((dow + 6) % 7));
+    const weekKey = weekStart.toISOString().slice(0,10);
+    if (weekKey !== lastWeek) {
+      if (lastWeek !== null) out += '</div>';
+      const now = new Date(); now.setHours(0,0,0,0);
+      const tws = new Date(now); tws.setDate(now.getDate() - ((now.getDay()+6)%7));
+      const isThisWeek = weekKey === tws.toISOString().slice(0,10);
+      const nws = new Date(tws); nws.setDate(tws.getDate()+7);
+      const isNextWeek = weekKey === nws.toISOString().slice(0,10);
+      const wl = isThisWeek ? '📅 This Week' : isNextWeek ? 'Next Week' :
+        weekStart.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' week';
+      out += `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:6px;">${wl}</div>`;
+      lastWeek = weekKey;
+    }
+    const c = typeColors[e.type] || typeColors.other;
+    const cancelStyle = e.canceled ? 'opacity:0.5;text-decoration:line-through;' : '';
+    const timeStr = e.allDay ? 'All Day' : (e.startTime + (e.endTime ? '–' + e.endTime : ''));
+    const locShort = e.location ? e.location.split(',')[0] : '';
+    out += `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:${c.bg};border:1px solid ${c.border};border-radius:8px;margin-bottom:6px;${cancelStyle}">
+      <div style="font-size:18px;line-height:1;margin-top:2px;">${c.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:13px;color:${c.text};">${e.canceled ? '❌ CANCELED — ' : ''}${e.label}</div>
+        <div style="font-size:12px;color:#475569;margin-top:2px;">${e.dow} ${e.month} ${e.day} · ${timeStr}</div>
+        ${locShort ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📍 ${locShort}</div>` : ''}
+      </div>
+    </div>`;
+  }
+  if (lastWeek !== null) out += '</div>';
+  el.innerHTML = out;
+}
+
+
 // =========== STATE ===========
 let currentWeekOffset = 0;
 let editingDayIndex = -1;
@@ -904,6 +1122,7 @@ function updateProgress(kid) {
 
 // =========== KIDS VIEW ===========
 function updateKidsView() {
+  renderKidsSoccer();
   const today = new Date();
   const dayIdx = today.getDay();
   const key = getDayKey(today);
@@ -1283,11 +1502,304 @@ function printGroceryList() {
 }
 
 
+
+
+// ── Kids view soccer renderer ──────────────────────────────────────────────
+function renderKidsSoccer() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const typeIcons = { practice:'⚽', tournament:'🏆', game:'🥅', event:'🎉', other:'📅' };
+  const typeColors = { practice:'#eff6ff', tournament:'#fef3c7', game:'#f0fdf4', event:'#fdf4ff', other:'#f8fafc' };
+  const typeBorders = { practice:'#bfdbfe', tournament:'#fcd34d', game:'#bbf7d0', event:'#e9d5ff', other:'#e2e8f0' };
+  const typeText = { practice:'#1e40af', tournament:'#92400e', game:'#166534', event:'#7e22ce', other:'#475569' };
+
+  function buildHTML(events) {
+    const upcoming = events
+      .filter(e => new Date(e.date + 'T12:00:00') >= today)
+      .slice(0, 5);  // show next 5 events
+    if (!upcoming.length) return '<div style="color:#94a3b8;font-size:13px;">No upcoming events!</div>';
+    return upcoming.map(e => {
+      const icon   = typeIcons[e.type]   || '📅';
+      const bg     = typeColors[e.type]  || '#f8fafc';
+      const border = typeBorders[e.type] || '#e2e8f0';
+      const text   = typeText[e.type]    || '#475569';
+      const time   = e.allDay ? 'All Day' : e.startTime + (e.endTime ? '–' + e.endTime : '');
+      const locShort = e.location ? e.location.split(',')[0] : '';
+      const cancelStyle = e.canceled ? 'opacity:0.5;text-decoration:line-through;' : '';
+      const isTournament = e.type === 'tournament';
+      return `<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 10px;background:${bg};border:2px solid ${border};border-radius:10px;margin-bottom:8px;${cancelStyle}${isTournament?' box-shadow:0 2px 8px rgba(245,158,11,0.15);':''}">
+        <div style="font-size:20px;line-height:1;margin-top:1px;">${icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:800;font-size:14px;color:${text};">${e.canceled?'❌ CANCELED — ':''}${e.label}</div>
+          <div style="font-size:12px;color:#475569;margin-top:3px;font-weight:600;">${e.dow} ${e.month} ${e.day} · ${time}</div>
+          ${locShort ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📍 ${locShort}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const bradyEl = document.getElementById('brady-kids-soccer');
+  const jamesEl = document.getElementById('james-kids-soccer');
+  if (bradyEl) bradyEl.innerHTML = buildHTML(BRADY_SOCCER_EVENTS);
+  if (jamesEl) jamesEl.innerHTML = buildHTML(SOCCER_EVENTS);
+}
+
+// =========== SYNC ENGINE (Firebase + localStorage fallback) ===========
+
+// ─── STEP 1: Paste your Firebase config here ────────────────────────────────
+// After creating your Firebase project (see instructions below the app),
+// replace the placeholder values with your real config object.
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyC3_ZJlBlEVdY51bbScj84aySBKvbmWiZ4",
+  authDomain:        "rathbun-family-hub.firebaseapp.com",
+  databaseURL:       "https://rathbun-family-hub-default-rtdb.firebaseio.com",
+  projectId:         "rathbun-family-hub",
+  storageBucket:     "rathbun-family-hub.firebasestorage.app",
+  messagingSenderId: "517025911101",
+  appId:             "1:517025911101:web:4d55addb4adb45807db554",
+};
+
+const FIREBASE_PATH = 'rathbun-family-hub';
+const LOCAL_KEY     = 'rathbunFamilyHub_v1';
+let   firebaseReady = false;
+let   dbRef         = null;
+let   suppressNext  = false;   // prevent echo loops when we apply remote changes
+
+// ─── Firebase initializer ────────────────────────────────────────────────────
+function initFirebase() {
+  if (FIREBASE_CONFIG.apiKey.startsWith('PASTE_')) return;   // not configured yet
+  try {
+    // Dynamically load Firebase SDK (v9 compat)
+    const sdkBase = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    Promise.all([
+      loadScript(sdkBase + 'firebase-app-compat.js'),
+      loadScript(sdkBase + 'firebase-database-compat.js'),
+    ]).then(() => {
+      if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+      dbRef = firebase.database().ref(FIREBASE_PATH);
+      firebaseReady = true;
+      updateSyncBadge('connected');
+
+      // Listen for remote changes (from Sarah or another device)
+      dbRef.on('value', snapshot => {
+        if (suppressNext) { suppressNext = false; return; }
+        const data = snapshot.val();
+        if (!data) return;
+        applyRemoteState(data);
+      });
+    }).catch(e => {
+      console.warn('Firebase load failed:', e);
+      updateSyncBadge('offline');
+    });
+  } catch(e) {
+    console.warn('Firebase init error:', e);
+    updateSyncBadge('offline');
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+// ─── Apply state received from Firebase ─────────────────────────────────────
+function applyRemoteState(data) {
+  if (data.weekData)      weekData      = data.weekData;
+  if (data.dinnerPlan)    dinnerPlan    = data.dinnerPlan;
+  if (data.campInfo)      campInfo      = data.campInfo;
+  if (data.soccerInfo)    soccerInfo    = data.soccerInfo;
+  if (data.favoriteMeals) favoriteMeals = data.favoriteMeals;
+  if (data.groceryItems)  groceryItems  = data.groceryItems;
+  if (data.nextGroceryId) nextGroceryId = data.nextGroceryId;
+
+  // Restore form fields
+  requestAnimationFrame(() => {
+    const fields = {
+      'camp-name': campInfo.name, 'camp-start': campInfo.start,
+      'camp-end': campInfo.end, 'camp-location': campInfo.location,
+      'camp-lunch': campInfo.lunch, 'camp-items': campInfo.items,
+      'soccer-mon': soccerInfo.mon, 'soccer-wed': soccerInfo.wed,
+      'soccer-loc': soccerInfo.loc,
+    };
+    Object.entries(fields).forEach(([id, val]) => {
+      const el = document.getElementById(id); if (el && val) el.value = val;
+    });
+    if (data.bradyScreen) {
+      const el = document.getElementById('brady-screen'); if (el) el.value = data.bradyScreen;
+      document.getElementById('brady-screen-display').textContent = data.bradyScreen;
+    }
+    if (data.jamesScreen) {
+      const el = document.getElementById('james-screen'); if (el) el.value = data.jamesScreen;
+      document.getElementById('james-screen-display').textContent = data.jamesScreen;
+    }
+    renderWeek(); renderDinners(); renderFavorites(); renderGroceryAisles(); updateKidsView();
+    showSyncToast('📲 Updated from ' + (data._lastEditor || 'another device'));
+  });
+}
+
+// ─── Build state snapshot ────────────────────────────────────────────────────
+function buildState() {
+  return {
+    weekData, dinnerPlan, campInfo, soccerInfo,
+    favoriteMeals, groceryItems, nextGroceryId,
+    bradyScreen: document.getElementById('brady-screen') ? document.getElementById('brady-screen').value : '90',
+    jamesScreen: document.getElementById('james-screen') ? document.getElementById('james-screen').value : '90',
+    savedAt: new Date().toISOString(),
+    _lastEditor: 'Bob',   // you can change this per-device to "Sarah" on her phone
+  };
+}
+
+// ─── Save: Firebase (primary) + localStorage (always) ───────────────────────
+function saveAll() {
+  const state = buildState();
+  // Always save to localStorage as offline fallback
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch(e) {}
+
+  if (firebaseReady && dbRef) {
+    suppressNext = true;
+    dbRef.set(state)
+      .then(() => updateSyncBadge('synced'))
+      .catch(e => { updateSyncBadge('offline'); console.warn('Firebase write failed', e); });
+  } else {
+    showSyncToast('💾 Saved locally');
+  }
+}
+
+// ─── Load: Firebase (primary, via listener) or localStorage (fallback) ───────
+function loadAll() {
+  try {
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    applyRemoteState(state);   // reuse same restore logic
+    return true;
+  } catch(e) { return false; }
+}
+
+function clearAll() {
+  if (!confirm('Clear ALL family hub data? This cannot be undone.')) return;
+  localStorage.removeItem(LOCAL_KEY);
+  if (firebaseReady && dbRef) dbRef.remove();
+  location.reload();
+}
+
+// ─── Sync badge in the nav bar ───────────────────────────────────────────────
+function updateSyncBadge(status) {
+  let badge = document.getElementById('sync-badge');
+  if (!badge) return;
+  const states = {
+    connected: { text: '🔄 Live sync on', color: '#dcfce7', textColor: '#166534' },
+    synced:    { text: '✓ Synced',        color: '#dcfce7', textColor: '#166534' },
+    offline:   { text: '💾 Local only',   color: '#fef3c7', textColor: '#92400e' },
+    setup:     { text: '⚙️ Setup needed', color: '#fce7f3', textColor: '#9d174d' },
+  };
+  const s = states[status] || states.offline;
+  badge.textContent = s.text;
+  badge.style.background = s.color;
+  badge.style.color = s.textColor;
+}
+
+// ─── Toast notification ──────────────────────────────────────────────────────
+function showSyncToast(msg) {
+  let toast = document.getElementById('persist-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'persist-toast';
+    toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a2332;color:white;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.25s;pointer-events:none;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+}
+// Keep old name working
+function showPersistToast(msg) { showSyncToast(msg); }
+
+// ─── Auto-save debounce ──────────────────────────────────────────────────────
+let autoSaveTimer = null;
+function scheduleSave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(saveAll, 1500);
+}
+
 // =========== INIT ===========
+// 1. Load from localStorage immediately (instant, no flash)
+loadAll();
+
+// 2. Render with loaded state
 renderWeek();
+renderSoccerSchedule();
+renderBradySoccerSchedule();
+renderKidsSoccer();
 renderDinners();
 renderFavorites();
+renderGroceryAisles();
 updateKidsView();
+
+// 3. Kick off Firebase (async — will sync once connected)
+initFirebase();
+
+// 4. Show sync badge state
+if (FIREBASE_CONFIG.apiKey.startsWith('PASTE_')) {
+  setTimeout(() => updateSyncBadge('setup'), 500);
+}
+
+// 5. Wire auto-save to every input change
+document.addEventListener('input',  scheduleSave);
+document.addEventListener('change', scheduleSave);
+
+// 6. Patch all state-mutating functions to trigger save
+function patchSaveFn(orig) {
+  return function() { orig.apply(this, arguments); clearTimeout(autoSaveTimer); saveAll(); };
+}
+saveCamp        = patchSaveFn(saveCamp);
+saveSoccer      = patchSaveFn(saveSoccer);
+saveDinners     = patchSaveFn(saveDinners);
+saveScreen      = patchSaveFn(saveScreen);
+saveGroceryList = patchSaveFn(saveGroceryList);
+
+const _origToggleGrocery  = toggleGroceryItem;
+const _origRemoveGrocery  = removeGroceryItem;
+const _origAddGrocery     = addGroceryItem;
+const _origClearChecked   = clearChecked;
+const _origAssignMeal     = assignMealToDay;
+const _origSaveModal      = saveModal;
+const _origFavMeal        = favMeal;
+const _origAddFavMeal     = addFavoriteMeal;
+const _origRemoveFavorite = removeFavorite;
+
+toggleGroceryItem = function() { _origToggleGrocery.apply(this,arguments);  scheduleSave(); };
+removeGroceryItem = function() { _origRemoveGrocery.apply(this,arguments);  scheduleSave(); };
+addGroceryItem    = function() { _origAddGrocery.apply(this,arguments);     scheduleSave(); };
+clearChecked      = function() { _origClearChecked.apply(this,arguments);   scheduleSave(); };
+assignMealToDay   = function() { _origAssignMeal.apply(this,arguments);     scheduleSave(); };
+saveModal         = function() { _origSaveModal.apply(this,arguments);      scheduleSave(); };
+favMeal           = function() { _origFavMeal.apply(this,arguments);        scheduleSave(); };
+addFavoriteMeal   = function() { _origAddFavMeal.apply(this,arguments);     scheduleSave(); };
+removeFavorite    = function() { _origRemoveFavorite.apply(this,arguments); scheduleSave(); };
+
+// Update sync status text in Settings panel
+function refreshSyncStatusText() {
+  const el = document.getElementById('sync-status-text');
+  if (!el) return;
+  if (FIREBASE_CONFIG.apiKey.startsWith('PASTE_')) {
+    el.textContent = '⚙️ Firebase not configured — data saved locally only';
+    el.style.color = '#92400e';
+  } else if (firebaseReady) {
+    el.textContent = '✅ Connected — syncing with Sarah in real-time';
+    el.style.color = '#166534';
+  } else {
+    el.textContent = '⏳ Connecting to Firebase...';
+    el.style.color = '#1e40af';
+  }
+}
+// Re-check every few seconds
+setInterval(refreshSyncStatusText, 3000);
+
 </script>
 </body>
 </html>
