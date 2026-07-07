@@ -165,6 +165,48 @@
   .modal-row input:focus, .modal-row select:focus { outline: none; border-color: #2563eb; }
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
   .cancel-btn { background: #f1f5f9; color: #64748b; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  /* ---- GROCERY LIST ---- */
+  .grocery-hero { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; color: white; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .grocery-hero h3 { font-size: 16px; font-weight: 700; }
+  .grocery-hero .sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .grocery-gen-btn { background: white; color: #16a34a; border: none; border-radius: 10px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity 0.15s; }
+  .grocery-gen-btn:hover { opacity: 0.9; }
+  .grocery-gen-btn.spinning i { animation: spin 0.6s linear infinite; }
+
+  .aisle-section { background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+  .aisle-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; cursor: pointer; }
+  .aisle-header .aisle-icon { font-size: 20px; }
+  .aisle-header .aisle-name { font-size: 13px; font-weight: 700; flex: 1; }
+  .aisle-header .aisle-count { font-size: 11px; font-weight: 600; background: #e2e8f0; color: #64748b; padding: 2px 8px; border-radius: 10px; }
+  .aisle-header .aisle-count.has-items { background: #dcfce7; color: #166534; }
+  .aisle-items { padding: 8px 12px; }
+  .grocery-item { display: flex; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid #f1f5f9; }
+  .grocery-item:last-child { border-bottom: none; }
+  .grocery-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #16a34a; cursor: pointer; flex-shrink: 0; }
+  .grocery-item .item-text { flex: 1; font-size: 13px; font-weight: 500; }
+  .grocery-item.checked .item-text { text-decoration: line-through; color: #94a3b8; }
+  .grocery-item .item-source { font-size: 10px; color: #94a3b8; padding: 1px 6px; background: #f8fafc; border-radius: 6px; }
+  .grocery-item .del-item { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; opacity: 0; transition: opacity 0.15s; }
+  .grocery-item:hover .del-item { opacity: 1; }
+
+  .grocery-add-row { display: flex; gap: 8px; margin-top: 10px; }
+  .grocery-add-row input { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: #f8fafc; }
+  .grocery-add-row input:focus { outline: none; border-color: #16a34a; }
+  .grocery-add-row select { border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 13px; font-family: inherit; background: #f8fafc; }
+  .grocery-add-row select:focus { outline: none; border-color: #16a34a; }
+  .grocery-add-btn { background: #16a34a; color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .grocery-add-btn:hover { background: #15803d; }
+
+  .grocery-summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .grocery-stat { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 16px; text-align: center; flex: 1; min-width: 80px; }
+  .grocery-stat .stat-num { font-size: 22px; font-weight: 800; color: #16a34a; }
+  .grocery-stat .stat-label { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .clear-checked-btn { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .clear-checked-btn:hover { background: #fee2e2; }
+  .print-list-btn { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .print-list-btn:hover { background: #dbeafe; }
+
 </style>
 </head>
 <body>
@@ -187,6 +229,7 @@
     <button class="parent-tab active" onclick="switchTab('schedule')">📅 Schedule</button>
     <button class="parent-tab" onclick="switchTab('dinners')">🍽️ Dinners</button>
     <button class="parent-tab" onclick="switchTab('camp')">⛺ Camp & Soccer</button>
+    <button class="parent-tab" onclick="switchTab('grocery')">🛒 Grocery</button>
     <button class="parent-tab" onclick="switchTab('settings')">⚙️ Settings</button>
   </div>
 
@@ -342,6 +385,60 @@
     </div>
   </div>
 </div>
+
+
+  <!-- GROCERY TAB -->
+  <div class="parent-panel" id="panel-grocery">
+
+    <div class="grocery-hero">
+      <div>
+        <h3>🛒 Weekly Grocery List</h3>
+        <div class="sub" id="grocery-based-on">Based on this week's dinner plan</div>
+      </div>
+      <button class="grocery-gen-btn" id="grocery-gen-btn" onclick="generateGroceryList()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Build from Dinners
+      </button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grocery-summary">
+      <div class="grocery-stat"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total items</div></div>
+      <div class="grocery-stat"><div class="stat-num" id="stat-checked">0</div><div class="stat-label">In cart</div></div>
+      <div class="grocery-stat"><div class="stat-num" id="stat-remaining">0</div><div class="stat-label">Still needed</div></div>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;">
+      <button class="clear-checked-btn" onclick="clearChecked()"><i class="fa-solid fa-broom"></i> Clear checked</button>
+      <button class="print-list-btn" onclick="printGroceryList()"><i class="fa-solid fa-print"></i> Print list</button>
+      <button class="save-btn sm" onclick="saveGroceryList()" style="margin-left:auto;"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+      <span id="grocery-saved" style="font-size:12px; color:#16a34a; display:none;">✓ Saved!</span>
+    </div>
+
+    <!-- Aisles -->
+    <div id="grocery-aisles"></div>
+
+    <!-- Manual add -->
+    <div class="section" style="margin-top:4px;">
+      <div class="section-title" style="margin-bottom:10px;"><i class="fa-solid fa-plus" style="color:#16a34a;"></i> Add Item Manually</div>
+      <div class="grocery-add-row">
+        <input id="grocery-add-input" placeholder="e.g. Parmesan cheese" onkeydown="if(event.key==='Enter')addGroceryItem()" />
+        <select id="grocery-add-aisle">
+          <option value="Produce">🥦 Produce</option>
+          <option value="Meat & Seafood">🥩 Meat & Seafood</option>
+          <option value="Dairy & Eggs">🧀 Dairy & Eggs</option>
+          <option value="Bakery & Bread">🍞 Bakery & Bread</option>
+          <option value="Pantry & Canned">🥫 Pantry & Canned</option>
+          <option value="Pasta & Grains">🍝 Pasta & Grains</option>
+          <option value="Frozen">🧊 Frozen</option>
+          <option value="Snacks & Kids">🍿 Snacks & Kids</option>
+          <option value="Condiments & Sauces">🫙 Condiments</option>
+          <option value="Beverages">🥤 Beverages</option>
+          <option value="Other">📦 Other</option>
+        </select>
+        <button class="grocery-add-btn" onclick="addGroceryItem()"><i class="fa-solid fa-plus"></i> Add</button>
+      </div>
+    </div>
+
+  </div>
 
 <!-- ============ KIDS VIEW ============ -->
 <div id="kids-view" class="view">
@@ -893,6 +990,298 @@ function switchView(v) {
   document.getElementById(`${v}-view`).classList.add('active');
   if (v==='kids') updateKidsView();
 }
+
+
+// =========== GROCERY LIST ===========
+
+const AISLE_ORDER = ['Produce','Meat & Seafood','Dairy & Eggs','Bakery & Bread','Pantry & Canned','Pasta & Grains','Frozen','Snacks & Kids','Condiments & Sauces','Beverages','Other'];
+const AISLE_ICONS = {'Produce':'🥦','Meat & Seafood':'🥩','Dairy & Eggs':'🧀','Bakery & Bread':'🍞','Pantry & Canned':'🥫','Pasta & Grains':'🍝','Frozen':'🧊','Snacks & Kids':'🍿','Condiments & Sauces':'🫙','Beverages':'🥤','Other':'📦'};
+
+// Ingredient database keyed by meal name
+const MEAL_INGREDIENTS = {
+  'Tacos': [
+    {name:'Ground beef (1 lb)', aisle:'Meat & Seafood'},{name:'Taco shells or tortillas', aisle:'Bakery & Bread'},
+    {name:'Shredded cheddar cheese', aisle:'Dairy & Eggs'},{name:'Sour cream', aisle:'Dairy & Eggs'},
+    {name:'Salsa', aisle:'Condiments & Sauces'},{name:'Lettuce', aisle:'Produce'},
+    {name:'Tomato', aisle:'Produce'},{name:'Taco seasoning', aisle:'Condiments & Sauces'}
+  ],
+  'Pasta with Marinara': [
+    {name:'Pasta (spaghetti or penne)', aisle:'Pasta & Grains'},{name:'Marinara sauce (jar)', aisle:'Pantry & Canned'},
+    {name:'Italian sausage (optional)', aisle:'Meat & Seafood'},{name:'Parmesan cheese', aisle:'Dairy & Eggs'},
+    {name:'Garlic', aisle:'Produce'}
+  ],
+  'Grilled Cheese & Tomato Soup': [
+    {name:'Sandwich bread', aisle:'Bakery & Bread'},{name:'Sliced American or cheddar cheese', aisle:'Dairy & Eggs'},
+    {name:'Butter', aisle:'Dairy & Eggs'},{name:'Tomato soup (can)', aisle:'Pantry & Canned'}
+  ],
+  'Chicken Quesadillas': [
+    {name:'Rotisserie chicken', aisle:'Meat & Seafood'},{name:'Flour tortillas (large)', aisle:'Bakery & Bread'},
+    {name:'Shredded Mexican cheese blend', aisle:'Dairy & Eggs'},{name:'Sour cream', aisle:'Dairy & Eggs'},
+    {name:'Salsa', aisle:'Condiments & Sauces'}
+  ],
+  'Burgers on the Grill': [
+    {name:'Ground beef 80/20 (2 lbs)', aisle:'Meat & Seafood'},{name:'Burger buns', aisle:'Bakery & Bread'},
+    {name:'American cheese slices', aisle:'Dairy & Eggs'},{name:'Lettuce, tomato, onion', aisle:'Produce'},
+    {name:'Ketchup & mustard', aisle:'Condiments & Sauces'},{name:'Sweet potatoes', aisle:'Produce'}
+  ],
+  'Sheet Pan Chicken & Veggies': [
+    {name:'Chicken thighs or breasts (2 lbs)', aisle:'Meat & Seafood'},{name:'Broccoli', aisle:'Produce'},
+    {name:'Bell peppers', aisle:'Produce'},{name:'Olive oil', aisle:'Condiments & Sauces'},
+    {name:'Garlic powder, paprika', aisle:'Condiments & Sauces'}
+  ],
+  'Homemade Pizza': [
+    {name:'Pizza dough (store-bought)', aisle:'Bakery & Bread'},{name:'Pizza sauce', aisle:'Pantry & Canned'},
+    {name:'Shredded mozzarella', aisle:'Dairy & Eggs'},{name:'Toppings of choice', aisle:'Meat & Seafood'},
+    {name:'Olive oil', aisle:'Condiments & Sauces'}
+  ],
+  'Stir Fry with Rice': [
+    {name:'Chicken breast or shrimp (1 lb)', aisle:'Meat & Seafood'},{name:'Frozen stir fry veggies', aisle:'Frozen'},
+    {name:'Soy sauce', aisle:'Condiments & Sauces'},{name:'Sesame oil', aisle:'Condiments & Sauces'},
+    {name:'White rice', aisle:'Pasta & Grains'},{name:'Garlic & ginger', aisle:'Produce'}
+  ],
+  'Salmon & Roasted Potatoes': [
+    {name:'Salmon fillets (4)', aisle:'Meat & Seafood'},{name:'Yukon gold potatoes', aisle:'Produce'},
+    {name:'Lemon', aisle:'Produce'},{name:'Olive oil', aisle:'Condiments & Sauces'},
+    {name:'Garlic, dill or parsley', aisle:'Produce'}
+  ],
+  'Mac & Cheese (upgraded)': [
+    {name:'Mac & cheese (box)', aisle:'Pasta & Grains'},{name:'Broccoli', aisle:'Produce'},
+    {name:'Bacon or bacon bits', aisle:'Meat & Seafood'},{name:'Milk & butter', aisle:'Dairy & Eggs'}
+  ],
+  'Sloppy Joes': [
+    {name:'Ground beef (1 lb)', aisle:'Meat & Seafood'},{name:'Sloppy Joe sauce (can)', aisle:'Pantry & Canned'},
+    {name:'Hamburger buns', aisle:'Bakery & Bread'},{name:'Chips or coleslaw', aisle:'Snacks & Kids'}
+  ],
+  'Chicken Nuggets & Fries': [
+    {name:'Frozen chicken nuggets', aisle:'Frozen'},{name:'Frozen fries', aisle:'Frozen'},
+    {name:'Ketchup', aisle:'Condiments & Sauces'}
+  ],
+  'BBQ Pulled Pork': [
+    {name:'Pork shoulder (3-4 lbs)', aisle:'Meat & Seafood'},{name:'BBQ sauce', aisle:'Condiments & Sauces'},
+    {name:'Brioche buns', aisle:'Bakery & Bread'},{name:'Coleslaw mix', aisle:'Produce'},
+    {name:'Apple cider vinegar', aisle:'Condiments & Sauces'}
+  ],
+  'Shrimp Tacos': [
+    {name:'Shrimp (1 lb, peeled)', aisle:'Meat & Seafood'},{name:'Corn tortillas', aisle:'Bakery & Bread'},
+    {name:'Coleslaw mix', aisle:'Produce'},{name:'Avocado', aisle:'Produce'},
+    {name:'Lime', aisle:'Produce'},{name:'Sour cream', aisle:'Dairy & Eggs'},
+    {name:'Cumin & chili powder', aisle:'Condiments & Sauces'}
+  ],
+  'Veggie Fried Rice': [
+    {name:'White rice (2 cups)', aisle:'Pasta & Grains'},{name:'Frozen peas & carrots', aisle:'Frozen'},
+    {name:'Eggs (3)', aisle:'Dairy & Eggs'},{name:'Soy sauce', aisle:'Condiments & Sauces'},
+    {name:'Sesame oil', aisle:'Condiments & Sauces'},{name:'Green onions', aisle:'Produce'}
+  ],
+  'Chicken Fajitas': [
+    {name:'Chicken breast (1.5 lbs)', aisle:'Meat & Seafood'},{name:'Bell peppers (3)', aisle:'Produce'},
+    {name:'Onion', aisle:'Produce'},{name:'Flour tortillas', aisle:'Bakery & Bread'},
+    {name:'Shredded cheese', aisle:'Dairy & Eggs'},{name:'Fajita seasoning', aisle:'Condiments & Sauces'},
+    {name:'Sour cream & guacamole', aisle:'Dairy & Eggs'}
+  ],
+  'Meatball Sub Night': [
+    {name:'Frozen meatballs', aisle:'Frozen'},{name:'Marinara sauce (jar)', aisle:'Pantry & Canned'},
+    {name:'Sub/hoagie rolls', aisle:'Bakery & Bread'},{name:'Provolone or mozzarella', aisle:'Dairy & Eggs'},
+    {name:'Garlic bread', aisle:'Bakery & Bread'}
+  ],
+  'Turkey & Veggie Chili': [
+    {name:'Ground turkey (1 lb)', aisle:'Meat & Seafood'},{name:'Kidney beans (can)', aisle:'Pantry & Canned'},
+    {name:'Diced tomatoes (can)', aisle:'Pantry & Canned'},{name:'Corn (can)', aisle:'Pantry & Canned'},
+    {name:'Bell pepper & onion', aisle:'Produce'},{name:'Chili powder, cumin, garlic', aisle:'Condiments & Sauces'},
+    {name:'Shredded cheese & sour cream', aisle:'Dairy & Eggs'}
+  ],
+  'Hot Dogs & Corn': [
+    {name:'Hot dogs', aisle:'Meat & Seafood'},{name:'Hot dog buns', aisle:'Bakery & Bread'},
+    {name:'Corn on the cob or canned corn', aisle:'Produce'},{name:'Ketchup & mustard', aisle:'Condiments & Sauces'}
+  ],
+  'Baked Ziti': [
+    {name:'Ziti pasta (1 lb)', aisle:'Pasta & Grains'},{name:'Ricotta cheese (15 oz)', aisle:'Dairy & Eggs'},
+    {name:'Shredded mozzarella', aisle:'Dairy & Eggs'},{name:'Marinara sauce (jar)', aisle:'Pantry & Canned'},
+    {name:'Italian sausage', aisle:'Meat & Seafood'},{name:'Parmesan cheese', aisle:'Dairy & Eggs'}
+  ],
+  'Fish Tacos': [
+    {name:'Tilapia or cod fillets (1.5 lbs)', aisle:'Meat & Seafood'},{name:'Corn tortillas', aisle:'Bakery & Bread'},
+    {name:'Coleslaw mix', aisle:'Produce'},{name:'Lime', aisle:'Produce'},
+    {name:'Sour cream', aisle:'Dairy & Eggs'},{name:'Cumin & chili powder', aisle:'Condiments & Sauces'}
+  ],
+  'Chicken Caesar Wrap': [
+    {name:'Rotisserie chicken', aisle:'Meat & Seafood'},{name:'Large flour tortillas', aisle:'Bakery & Bread'},
+    {name:'Romaine lettuce', aisle:'Produce'},{name:'Caesar dressing', aisle:'Condiments & Sauces'},
+    {name:'Parmesan cheese', aisle:'Dairy & Eggs'},{name:'Croutons', aisle:'Snacks & Kids'}
+  ],
+  'Teriyaki Chicken Bowl': [
+    {name:'Chicken thighs (1.5 lbs)', aisle:'Meat & Seafood'},{name:'Teriyaki sauce', aisle:'Condiments & Sauces'},
+    {name:'White rice', aisle:'Pasta & Grains'},{name:'Broccoli', aisle:'Produce'},
+    {name:'Sesame seeds & green onion', aisle:'Produce'}
+  ],
+  'Pancake Dinner': [
+    {name:'Pancake mix', aisle:'Pantry & Canned'},{name:'Eggs', aisle:'Dairy & Eggs'},
+    {name:'Milk', aisle:'Dairy & Eggs'},{name:'Butter & maple syrup', aisle:'Condiments & Sauces'},
+    {name:'Bacon or sausage', aisle:'Meat & Seafood'}
+  ],
+  'Grilled Steak & Salad': [
+    {name:'Ribeye or sirloin steaks (2)', aisle:'Meat & Seafood'},{name:'Mixed salad greens', aisle:'Produce'},
+    {name:'Cherry tomatoes', aisle:'Produce'},{name:'Salad dressing', aisle:'Condiments & Sauces'},
+    {name:'Steak seasoning', aisle:'Condiments & Sauces'}
+  ],
+};
+
+// In-memory grocery list: [{id, name, aisle, checked, source}]
+let groceryItems = [];
+let nextGroceryId = 1;
+
+function generateGroceryList() {
+  const btn = document.getElementById('grocery-gen-btn');
+  btn.classList.add('spinning');
+  btn.querySelector('i').className = 'fa-solid fa-spinner';
+
+  setTimeout(() => {
+    btn.classList.remove('spinning');
+    btn.querySelector('i').className = 'fa-solid fa-wand-magic-sparkles';
+
+    // Collect this week's dinners
+    const meals = Object.values(dinnerPlan).filter(Boolean);
+    if (meals.length === 0) {
+      alert('Add some dinners in the Dinners tab first, then come back to build the list!');
+      return;
+    }
+
+    // Gather ingredients, deduplicate by name (case-insensitive)
+    const seen = new Set(groceryItems.map(i=>i.name.toLowerCase()));
+    let added = 0;
+    meals.forEach(meal => {
+      const ingredients = MEAL_INGREDIENTS[meal] || [];
+      ingredients.forEach(ing => {
+        if (!seen.has(ing.name.toLowerCase())) {
+          groceryItems.push({id: nextGroceryId++, name: ing.name, aisle: ing.aisle, checked: false, source: meal});
+          seen.add(ing.name.toLowerCase());
+          added++;
+        }
+      });
+    });
+
+    const mealNames = [...new Set(meals)].join(', ');
+    document.getElementById('grocery-based-on').textContent = `Based on: ${mealNames.length > 60 ? mealNames.slice(0,60)+'…' : mealNames}`;
+    renderGroceryAisles();
+  }, 500);
+}
+
+function renderGroceryAisles() {
+  // Group by aisle
+  const byAisle = {};
+  AISLE_ORDER.forEach(a => byAisle[a] = []);
+  groceryItems.forEach(item => {
+    const a = byAisle[item.aisle] ? item.aisle : 'Other';
+    byAisle[a].push(item);
+  });
+
+  const container = document.getElementById('grocery-aisles');
+  container.innerHTML = '';
+
+  AISLE_ORDER.forEach(aisle => {
+    const items = byAisle[aisle];
+    if (items.length === 0) return;
+    const checked = items.filter(i=>i.checked).length;
+
+    const sec = document.createElement('div');
+    sec.className = 'aisle-section';
+    sec.innerHTML = `
+      <div class="aisle-header" onclick="toggleAisle(this)">
+        <span class="aisle-icon">${AISLE_ICONS[aisle]||'📦'}</span>
+        <span class="aisle-name">${aisle}</span>
+        <span class="aisle-count ${items.length>0?'has-items':''}">${checked}/${items.length}</span>
+        <i class="fa-solid fa-chevron-down" style="font-size:11px; color:#94a3b8; transition:transform 0.2s;"></i>
+      </div>
+      <div class="aisle-items">
+        ${items.map(item => `
+          <div class="grocery-item${item.checked?' checked':''}" id="gi-${item.id}">
+            <input type="checkbox" ${item.checked?'checked':''} onchange="toggleGroceryItem(${item.id}, this.checked)" />
+            <span class="item-text">${item.name}</span>
+            ${item.source ? `<span class="item-source">${item.source}</span>` : ''}
+            <button class="del-item" onclick="removeGroceryItem(${item.id})"><i class="fa-solid fa-times"></i></button>
+          </div>`).join('')}
+      </div>
+    `;
+    container.appendChild(sec);
+  });
+
+  updateGroceryStats();
+}
+
+function toggleAisle(header) {
+  const items = header.nextElementSibling;
+  const icon = header.querySelector('i');
+  if (items.style.display === 'none') {
+    items.style.display = '';
+    icon.style.transform = '';
+  } else {
+    items.style.display = 'none';
+    icon.style.transform = 'rotate(-90deg)';
+  }
+}
+
+function toggleGroceryItem(id, checked) {
+  const item = groceryItems.find(i=>i.id===id);
+  if (item) item.checked = checked;
+  const row = document.getElementById('gi-'+id);
+  if (row) row.classList.toggle('checked', checked);
+  updateGroceryStats();
+}
+
+function removeGroceryItem(id) {
+  groceryItems = groceryItems.filter(i=>i.id!==id);
+  renderGroceryAisles();
+}
+
+function addGroceryItem() {
+  const nameEl = document.getElementById('grocery-add-input');
+  const aisleEl = document.getElementById('grocery-add-aisle');
+  const name = nameEl.value.trim();
+  if (!name) return;
+  groceryItems.push({id: nextGroceryId++, name, aisle: aisleEl.value, checked: false, source: ''});
+  nameEl.value = '';
+  renderGroceryAisles();
+}
+
+function clearChecked() {
+  groceryItems = groceryItems.filter(i=>!i.checked);
+  renderGroceryAisles();
+}
+
+function updateGroceryStats() {
+  const total = groceryItems.length;
+  const checked = groceryItems.filter(i=>i.checked).length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-checked').textContent = checked;
+  document.getElementById('stat-remaining').textContent = total - checked;
+}
+
+function saveGroceryList() {
+  flashSaved('grocery-saved');
+}
+
+function printGroceryList() {
+  const byAisle = {};
+  AISLE_ORDER.forEach(a => byAisle[a] = []);
+  groceryItems.filter(i=>!i.checked).forEach(item => {
+    const a = byAisle[item.aisle] ? item.aisle : 'Other';
+    byAisle[a].push(item);
+  });
+  let body = '<html><head><title>Grocery List</title><style>body{font-family:sans-serif;padding:20px;max-width:600px;}h1{font-size:20px;margin-bottom:16px;}h2{font-size:14px;font-weight:700;margin:16px 0 6px;border-bottom:1px solid #eee;padding-bottom:4px;}ul{list-style:none;padding:0;}li{padding:5px 0;font-size:14px;display:flex;align-items:center;gap:8px;}li::before{content:"☐";font-size:16px;}</style></head><body>';
+  body += '<h1>🛒 Rathbun Family Grocery List</h1>';
+  AISLE_ORDER.forEach(aisle => {
+    const items = byAisle[aisle];
+    if (!items || items.length === 0) return;
+    body += `<h2>${AISLE_ICONS[aisle]} ${aisle}</h2><ul>`;
+    items.forEach(i => { body += `<li>${i.name}${i.source?' <small style="color:#999">(${i.source})</small>':''}</li>`; });
+    body += '</ul>';
+  });
+  body += '</body></html>';
+  const w = window.open('', '_blank');
+  w.document.write(body);
+  w.document.close();
+  w.print();
+}
+
 
 // =========== INIT ===========
 renderWeek();
